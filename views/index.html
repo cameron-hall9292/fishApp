@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+  <head>
+    <title>fishApp</title>
+    <link
+      rel="shortcut icon"
+      href="https://cdn.freecodecamp.org/universal/favicons/favicon.ico"
+      type="image/x-icon"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <span>latitude: </span>
+      <span id="latitude"></span><br />
+      <span>longitude: </span>
+      <span id="longitude"></span><br />
+
+      <span>temperature:</span>
+      <span id="temp"></span>
+
+      <!-- <a href="bar_chart.html">bar_chart</a> -->
+
+      <h1>Fish tracker</h1>
+      <form action="/api/fish" method="post">
+        <h2>Add a New Fish</h2>
+        <p><code>POST /api/fish</code></p>
+
+        <input
+          id="tempbox"
+          type="text"
+          name="temp"
+          placeholder="temp in Fahrenheit"
+        />
+
+        <input
+          id="cloudcover"
+          type="text"
+          name="cloudcover"
+          placeholder="cloud cover as %"
+        />
+
+        <input
+          id="windspeed"
+          type="text"
+          name="windspeed"
+          placeholder="windspeed 10m above ground"
+        />
+
+        <input
+          id="precip"
+          type="text"
+          name="precip"
+          placeholder="precip in inches"
+        />
+        <input
+          id="fishtype"
+          type="text"
+          name="fishtype"
+          placeholder="fish type"
+        />
+        <input
+          id="location"
+          type="text"
+          name="location"
+          placeholder="location*"
+        />
+        <input
+          id="date"
+          type="datetime-local"
+          name="date"
+          placeholder="date (yyyy-mm-dd)"
+        />
+        <input id="bait" type="text" name="bait" placeholder="bait" />
+
+        <input type="submit" value="Submit" />
+      </form>
+      <form action="/api/fishtype" method="get">
+        <h2>Lookup fish!!!</h2>
+        <p><code>GET /api/fishtype</code></p>
+        <input
+          class="fishdata"
+          type="text"
+          name="fishtype"
+          placeholder="lookup fish type"
+        />
+        <input type="submit" value="Submit" />
+      </form>
+
+      <form action="/api/fishcount" method="get">
+        <h2>Lookup fish!!!</h2>
+        <p><code>GET /api/fishcount</code></p>
+        <input
+          class="fishdata"
+          type="text"
+          name="fishtype"
+          placeholder="lookup # of fish type!"
+        />
+        <input type="submit" value="Submit" />
+      </form>
+
+      <form action="/api/fishbait" method="get">
+        <h2>Lookup fish!!!</h2>
+        <p><code>GET /api/fishbait</code></p>
+        <input
+          class="fishdata"
+          type="text"
+          name="fishbait"
+          placeholder="lookup # of fish caught by bait!"
+        />
+        <input type="submit" value="Submit" />
+      </form>
+
+      <p>
+        <strong>GET user's exercise log: </strong>
+        <code>GET /api/users/:_id/logs?[from][&amp;to][&amp;limit]</code>
+      </p>
+      <p><strong>[ ]</strong> = optional</p>
+      <p>
+        <strong>from, to</strong> = dates (yyyy-mm-dd); <strong>limit</strong> =
+        number
+      </p>
+    </div>
+    <!-- <script src="./script.js"> -->
+    <script>
+      let allFishData;
+
+      //fetch fishing data that represents number of each fish type caught
+      // fetch("/api/fish", )
+      //   .then(response) => response.json())
+      //   .then(data) => {
+      //     allFishData = data
+      //     console.log(allFishData)
+      //   });
+
+      // console.log("script.js is working properly");
+
+      let latitude;
+      let longitude;
+
+      let temp_label = document.getElementById("temp");
+
+      let temp_box = document.getElementById("tempbox");
+
+      let cloud_box = document.getElementById("cloudcover");
+
+      let wind_box = document.getElementById("windspeed");
+
+      let precip_box = document.getElementById("precip");
+
+      //get current position with geolocation api
+
+      const successCallback = (position) => {
+        console.log(position);
+        document.getElementById("latitude").innerHTML =
+          position.coords.latitude;
+        document.getElementById("longitude").innerHTML =
+          position.coords.longitude;
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+
+        console.log(longitude);
+        console.log(latitude);
+
+        //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
+
+        fetch(
+          `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability`,
+        ) //api for the get request
+          .then((response) => response.json())
+          .then((data) => {
+            temp_label.innerHTML = data.current.temperature_2m;
+
+            // make temp form box = temp fetched from openmeteo api
+
+            temp_box.value = data.current.temperature_2m;
+
+            cloud_box.value = data.current.cloud_cover;
+
+            wind_box.value = data.current.wind_speed_10m;
+
+            precip_box.value = data.current.precipitation;
+
+            console.log(data);
+
+            console.log(temp_label.value);
+          });
+      };
+
+      const errorCallback = (error) => {
+        console.log(error);
+      };
+
+      navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+    </script>
+  </body>
+</html>
