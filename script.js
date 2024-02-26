@@ -1,57 +1,69 @@
-// const exerciseForm = document.getElementById("exercise-form");
+let allFishData;
 
-// exerciseForm.addEventListener("submit", () => {
-//   const userId = document.getElementById("uid").value;
-//   exerciseForm.action = `/api/users/${userId}/exercises`;
+//fetch fishing data that represents number of each fish type caught
+// fetch("/api/fish", )
+//   .then(response) => response.json())
+//   .then(data) => {
+//     allFishData = data
+//     console.log(allFishData)
+//   });
 
-//   exerciseForm.submit();
-// });
-
-console.log("script.js is working properly");
-
-
-
-
-
-
+// console.log("script.js is working properly");
 
 let latitude;
 let longitude;
 
 let temp_label = document.getElementById("temp");
 
+let temp_box = document.getElementById("tempbox");
 
-    //get current position with geolocation api
+let cloud_box = document.getElementById("cloudcover");
 
-    const successCallback = (position) => {
-    console.log(position);
-    document.getElementById("latitude").innerHTML = position.coords.latitude;
-    document.getElementById("longitude").innerHTML = position.coords.longitude;
-    latitude = position.coords.latitude;
-    longitude = position.coords.longitude;
+let wind_box = document.getElementById("windspeed");
 
-    console.log(longitude);
-    console.log(latitude);
+let precip_box = document.getElementById("precip");
 
-    //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
+//get current position with geolocation api
 
-    fetch(`https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&current=temperature_2m,relative_humidity_2m`) //api for the get request
-    .then(response => response.json())
-    .then(data => {
+const successCallback = (position) => {
+  console.log(position);
+  document.getElementById("latitude").innerHTML =
+    position.coords.latitude;
+  document.getElementById("longitude").innerHTML =
+    position.coords.longitude;
+  latitude = position.coords.latitude;
+  longitude = position.coords.longitude;
 
-        temp_label.innerHTML = data.current.temperature_2m;
+  console.log(longitude);
+  console.log(latitude);
 
-        console.log(data)
+  //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
 
-        console.log(temp_label.value);
+  fetch(
+    `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability`,
+  ) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+      temp_label.innerHTML = data.current.temperature_2m;
+
+      // make temp form box = temp fetched from openmeteo api
+
+      temp_box.value = data.current.temperature_2m;
+
+      cloud_box.value = data.current.cloud_cover;
+
+      wind_box.value = data.current.wind_speed_10m;
+
+      precip_box.value = data.current.precipitation;
+
+      console.log(data);
+
+      console.log(temp_label.value);
     });
+};
 
+const errorCallback = (error) => {
+  console.log(error);
+};
 
-    };
-
-    const errorCallback = (error) => {
-    console.log(error);
-    };
-
-    navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-
+navigator.geolocation.getCurrentPosition(successCallback, errorCallback);

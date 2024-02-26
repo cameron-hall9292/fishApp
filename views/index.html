@@ -14,7 +14,12 @@
     />
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
-
+  
+  <style>
+    .bar:hover {
+      fill: brown;
+    }
+  </style>
   <body>
     <div class="container">
       <span>latitude: </span>
@@ -23,7 +28,8 @@
       <span id="longitude"></span><br />
 
       <span>temperature:</span>
-      <span id="temp"></span>
+      <span id="temp"></span><br><br>
+      <div id="fetchtest">fetch test </div>
 
       <!-- <a href="bar_chart.html">bar_chart</a> -->
 
@@ -131,73 +137,170 @@
     <script>
       let allFishData;
 
-      //fetch fishing data that represents number of each fish type caught
-      // fetch("/api/fish", )
-      //   .then(response) => response.json())
-      //   .then(data) => {
-      //     allFishData = data
-      //     console.log(allFishData)
-      //   });
+//fetch fishing data that represents number of each fish type caught
+// fetch("/api/fish", )
+//   .then(response) => response.json())
+//   .then(data) => {
+//     allFishData = data
+//     console.log(allFishData)
+//   });
 
-      // console.log("script.js is working properly");
+// console.log("script.js is working properly");
 
-      let latitude;
-      let longitude;
+let latitude;
+let longitude;
 
-      let temp_label = document.getElementById("temp");
+let temp_label = document.getElementById("temp");
 
-      let temp_box = document.getElementById("tempbox");
+let temp_box = document.getElementById("tempbox");
 
-      let cloud_box = document.getElementById("cloudcover");
+let cloud_box = document.getElementById("cloudcover");
 
-      let wind_box = document.getElementById("windspeed");
+let wind_box = document.getElementById("windspeed");
 
-      let precip_box = document.getElementById("precip");
+let precip_box = document.getElementById("precip");
 
-      //get current position with geolocation api
+//get current position with geolocation api
 
-      const successCallback = (position) => {
-        console.log(position);
-        document.getElementById("latitude").innerHTML =
-          position.coords.latitude;
-        document.getElementById("longitude").innerHTML =
-          position.coords.longitude;
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+const successCallback = (position) => {
+  console.log(position);
+  document.getElementById("latitude").innerHTML =
+    position.coords.latitude;
+  document.getElementById("longitude").innerHTML =
+    position.coords.longitude;
+  latitude = position.coords.latitude;
+  longitude = position.coords.longitude;
 
-        console.log(longitude);
-        console.log(latitude);
+  console.log(longitude);
+  console.log(latitude);
 
-        //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
+  //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
 
-        fetch(
-          `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability`,
-        ) //api for the get request
-          .then((response) => response.json())
-          .then((data) => {
-            temp_label.innerHTML = data.current.temperature_2m;
+  fetch(
+    `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability`,
+  ) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+      temp_label.innerHTML = data.current.temperature_2m;
 
-            // make temp form box = temp fetched from openmeteo api
+      // make temp form box = temp fetched from openmeteo api
 
-            temp_box.value = data.current.temperature_2m;
+      temp_box.value = data.current.temperature_2m;
 
-            cloud_box.value = data.current.cloud_cover;
+      cloud_box.value = data.current.cloud_cover;
 
-            wind_box.value = data.current.wind_speed_10m;
+      wind_box.value = data.current.wind_speed_10m;
 
-            precip_box.value = data.current.precipitation;
+      precip_box.value = data.current.precipitation;
 
-            console.log(data);
+      console.log(data);
 
-            console.log(temp_label.value);
-          });
-      };
+      console.log(temp_label.value);
+    });
+};
 
-      const errorCallback = (error) => {
-        console.log(error);
-      };
+const errorCallback = (error) => {
+  console.log(error);
+};
 
-      navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
     </script>
+  
+
+
+
+
+
+
+
+  <script type="module">
+
+  //import d3 to build bar chart
+
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+
+ let fishCountArr = [];
+ 
+    let fetchtest;
+    
+    const fetchFishCount = async () => {
+      await fetch(`http://localhost:5500/api/alldata`) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+     console.log(data);
+     //fetchtest = JSON.stringify(data)
+     fetchtest = data;
+     let fetchLabel = document.getElementById("fetchtest");
+  fetchLabel.innerHTML = fetchtest
+
+//clean up data into neat array for d3 manipulation
+
+for (let i = 0; i < fetchtest.length; i++){
+   //create mini arr of fishtype and count
+   let miniFishArr = [fetchtest[i]._id, fetchtest[i].myCount];
+   fishCountArr.push(miniFishArr); 
+}
+
+
+fetchLabel.innerHTML = fishCountArr
+    });
+    return fishCountArr;
+  }
+
+  fetchFishCount();
+
+  console.log(fishCountArr)
+  const dataset = [12, 31, 22, 17, 25, 18, 29, 14, 9];
+const newData = [['bass',2],['shark',20],['catfish',2]];
+const newDataTwo = [...fishCountArr]
+const data = await d3.json("http://localhost:5500/api/alldata")
+console.log(`data: ${data}`)
+console.log(data);
+const w = 500;
+const h = 100;
+
+const svg = d3.select("body")
+.append("svg")
+.attr("width", w)
+.attr("height", h)
+
+svg.selectAll("rect")
+.data(data)
+.enter()
+.append("rect")
+.attr("width", 25)
+.attr("height", (d,i) => d.myCount * 10
+)
+.attr("x", (d,i) => {
+  return i * 30
+})
+.attr("y", (d,i) => h - d.myCount * 10
+)
+.attr("fill","navy")
+.attr("class","bar")
+
+// add text labels to column chart
+svg.selectAll("text")
+       .data(data)
+       .enter()
+       // Add your code below this line
+        .append("text")
+        .attr("x", (d, i) => {
+          return i * 30
+        })
+        .attr("y", (d) => h - d.myCount * 10 - 10)
+        .text((d) => {
+        return d.myCount
+        })
+        
+        .attr("fill", "red")
+        .style("font-size", "25px")
+
+   
+  </script>
+       <a href="/barChart">barChart</a><br><br>
+       <a href="/chartjs">chartjs</a>
+
   </body>
 </html>

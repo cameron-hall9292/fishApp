@@ -4,6 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const mongoose = require("mongoose");
+const { start } = require("repl");
 
 const { Schema } = mongoose;
 
@@ -28,6 +29,16 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
+});
+
+app.get("/barChart", (req, res) => {
+  res.sendFile(__dirname + "/views/bar_chart.html");
+});
+
+//test out chart.js library to build a bar chart
+
+app.get("/chartjs", (req, res) => {
+  res.sendFile(__dirname + "/views/chartjs.html");
 });
 
 //post fish data
@@ -97,13 +108,49 @@ app.get("/api/fish", async (req, res) => {
   res.json(fishData);
 });
 
-//post fish data
-app.post("/api/fish/alldata", async (req, res) => {
-  const fishData = await Fish.find({}, desiredData);
+//get all fish data
+app.get("/api/alldata", async (req, res) => {
+  
+  // const fishData = await Fish.countDocuments({ fishtype: {$ne:null} });
+  // const resultobj = { fish: {$ne: null}, count: fishData };
+  // res.json(resultobj);
 
-  res.json(fishData);
-  console.log(fishData);
+  const fishData = await Fish.aggregate( [
+    { $group: { _id:"$fishtype", myCount: { $sum: 1 } } },
+
+ ] )
+ res.json(fishData)
+ console.log(fishData);
+
+
+
+ //clean up data into neat array for d3 manipulation
+
+ let fishCountArr = [];
+
+ for (let i = 0; i < fishData.length; i++){
+    //create mini arr of fishtype and count
+    let miniFishArr = [fishData[i]._id, fishData[i].myCount];
+    fishCountArr.push(miniFishArr); 
+ }
+
+ console.log(fishCountArr)
+
 });
+
+ //get bass fish types
+ app.get("/api/bass", async (req, res) => {
+  
+
+  const fishData = await Fish.aggregate( [
+    { $match: {$or: [ {fishtype: "wiper"}, {fishtype: "smallmouth bass"}]}},
+    { $group: { _id:"$fishtype", myCount: { $sum: 1 } } },
+  
+  
+  ])
+  
+ res.json(fishData);
+ })
 
 //get specific fish type back
 
@@ -134,17 +181,7 @@ app.get("/api/fishcount", async (req, res) => {
   res.json(resultobj);
 });
 
-//get location data using built in js geolocation
 
-// if ("geolocation" in navigator) {
-//   console.log("geolocation is available");
-// } else {
-//   console.log("geolocation NOT available");
-// }
-
-// global.navigator.geolocation.getCurrentPosition((position) => {
-//   doSomething(position.coords.latitude, position.coords.longitude);
-// });
 
 const listener = app.listen(process.env.PORT || 5500, () => {
   console.log("Your app is listening on port " + listener.address().port);

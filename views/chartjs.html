@@ -1,0 +1,63 @@
+<div>
+    <canvas id="myChart"></canvas>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    const ctx = document.getElementById('myChart');
+
+
+//start arrays to fill with data for chart from api
+
+let fishTypeArr = [];
+let fishCountArr = [];
+
+
+    //fetch data from my server
+
+    
+    fetch(`http://localhost:5500/api/alldata`) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+     console.log(data);
+     //fetchtest = JSON.stringify(data)
+     fetchtest = data;
+   
+
+
+//clean up data into neat array for d3 manipulation
+
+
+for (let i = 0; i < fetchtest.length; i++){
+   //create mini arr of fishtype and count
+  fishTypeArr.push(fetchtest[i]._id);
+fishCountArr.push(fetchtest[i].myCount); 
+}
+
+console.log(fishTypeArr);
+console.log(fishCountArr);
+    })
+   
+.then(() => {
+  
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: fishTypeArr, //['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+          label: '# caught',
+          data: fishCountArr, //[12, 19, 3, 5, 2, 3],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+});
+  </script>
