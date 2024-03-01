@@ -17,11 +17,23 @@ const fishSchema = new Schema({
   precip: Object,
   fishtype: Object,
   location: Object,
-  date: Date,
+  date: String,
   bait: Object,
-});
+  surfacePressure: Object,
+},
+{timestamps: true}
+);
+
+
+const fishTypeSchema = new Schema({
+  fishtype: Object
+})
 
 const Fish = mongoose.model("Fish", fishSchema);
+
+//create fish species library
+
+const fishLib = mongoose.model("FishLib", fishTypeSchema);
 
 app.use(cors());
 app.use(express.static("public"));
@@ -41,6 +53,48 @@ app.get("/chartjs", (req, res) => {
   res.sendFile(__dirname + "/views/chartjs.html");
 });
 
+app.get("/pressureChart", (req, res) => {
+  res.sendFile(__dirname + "/views/pressureChart.html");
+});
+
+app.get("/selectRecord", (req, res) => {
+  res.sendFile(__dirname + "/views/selectRecord.html");
+});
+
+
+//make a table of fishtypes to add to selection box
+
+app.post("/api/fishtype", async (req, res) => {
+
+  console.log(req.body);
+  const {fishtype} = req.body;
+
+  const fishTypeObj = new fishLib({fishtype});
+  try {
+    const fishTypeSave = await fishTypeObj.save();
+    res.json({fishtype: fishTypeObj.fishtype});
+  } catch (err) {
+    console.log(err);
+  }
+
+});
+
+
+//get all fish data
+
+const fishTypeData = {
+  _id: 0,
+  fishtype: 1
+
+}
+
+app.get("/api/fishtype", async (req, res) => {
+  const fishData = await fishLib.find({},fishTypeData);
+
+  res.json(fishData);
+});
+
+
 //post fish data
 
 app.post("/api/fish", async (req, res) => {
@@ -54,6 +108,7 @@ app.post("/api/fish", async (req, res) => {
     location,
     date,
     bait,
+    surfacePressure,
   } = req.body;
   const fishObj = new Fish({
     temp,
@@ -62,8 +117,9 @@ app.post("/api/fish", async (req, res) => {
     precip,
     fishtype,
     location,
-    date: date ? new Date(date) : new Date(),
+    date,                                                  //date ? new Date(date).toLocaleString('en-US') : new Date().toLocaleString('en-US'),
     bait,
+    surfacePressure,
   });
 
   try {
@@ -79,12 +135,7 @@ app.post("/api/fish", async (req, res) => {
   }
 });
 
-// Data.find({}, { _id: 1, serialno: 1 }, function (err, data) {
-//   if (err) {
-//     return handleError(res, err);
-//   }
-//   return res.json(200, data);
-// });
+
 
 //get all fish data back
 
@@ -98,6 +149,7 @@ const desiredData = {
   date: 1,
   bait: 1,
   _id: 0,
+  surfacePressure: 1,
 };
 
 //get all fish data

@@ -1,0 +1,107 @@
+
+
+
+
+
+
+<div>
+    <canvas id="myChart"></canvas>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    const ctx = document.getElementById('myChart');
+
+let latitude;
+let longitude;
+
+
+//get current position with geolocation api
+
+const successCallback = (position) => {
+  console.log(position);
+
+  latitude = position.coords.latitude;
+  longitude = position.coords.longitude;
+
+
+  //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
+
+
+
+  fetch(
+    `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&hourly=surface_pressure`,
+  ) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+
+        new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.hourly.time, 
+        datasets: [{
+          label: 'hourly surface pressure in hPa',
+          data: data.hourly.surface_pressure, 
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+
+    surfacePressureData = data.hourly.surface_pressure
+    timeData = data.hourly.time
+      console.log(data);
+         console.log(surfacePressureData)
+    });
+};
+
+const errorCallback = (error) => {
+  console.log(error);
+};
+
+
+navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
+;
+   
+//.then(() => {
+  
+    // new Chart(ctx, {
+    //   type: 'line',
+    //   data: {
+    //     labels: surfacePressureData, 
+    //     datasets: [{
+    //       label: 'TOTAL NUMBER OF FISH TYPE CAUGHT',
+    //       data: timeData, 
+    //       borderWidth: 1
+    //     }]
+    //   },
+    //   options: {
+    //     scales: {
+    //       y: {
+    //         beginAtZero: true
+    //       }
+    //     }
+    //   }
+    // });
+// })
+
+//     let allData;
+    
+//     fetch(`http://localhost:5500/api/alldata`) //api for the get request
+//     .then((response) => response.json())
+//     .then((data) => {
+//      console.log(data);
+//      //fetchtest = JSON.stringify(data)
+//       allData = data;
+   
+//     })
+
+  </script>

@@ -31,9 +31,24 @@
       <span id="temp"></span><br><br>
       <div id="fetchtest">fetch test </div>
 
-      <!-- <a href="bar_chart.html">bar_chart</a> -->
+      <a href="selectRecord">records</a>
+      <a href="chartjs">fish type chart</a>
+      <a href="pressureChart">surface pressure chart</a>
+
+
 
       <h1>Fish tracker</h1>
+
+      <button id="addFish" name="addFish" onclick="addNewFish(fishSelect,fishText)">submit new fish type</button>   
+      <button id="addBox" name="addFish" onclick="addBoxVis()">add new fish type</button>   
+
+      
+      <form action="/api/fishtype" method="post">
+        <input id="addAFish" name="fishtype" type="text"
+        placeholder="add a new fish type" />
+        <input type="submit" value="Submit" />
+      </form>
+      
       <form action="/api/fish" method="post">
         <h2>Add a New Fish</h2>
         <p><code>POST /api/fish</code></p>
@@ -41,6 +56,7 @@
         <input
           id="tempbox"
           type="text"
+          readonly="true"
           name="temp"
           placeholder="temp in Fahrenheit"
         />
@@ -48,6 +64,7 @@
         <input
           id="cloudcover"
           type="text"
+          readonly="true"
           name="cloudcover"
           placeholder="cloud cover as %"
         />
@@ -55,6 +72,7 @@
         <input
           id="windspeed"
           type="text"
+          readonly="true"
           name="windspeed"
           placeholder="windspeed 10m above ground"
         />
@@ -62,28 +80,58 @@
         <input
           id="precip"
           type="text"
+          readonly="true"
           name="precip"
           placeholder="precip in inches"
         />
-        <input
-          id="fishtype"
-          type="text"
-          name="fishtype"
-          placeholder="fish type"
-        />
+        <select id="fishtype" type="text"  name="fishtype" placeholder="fish type">
+          <!-- <option value="largemouth bass">largemouth bass</option>
+          <option value="smallmouth bass">smallmouth bass</option>
+          <option value="walleye">walleye</option>
+          <option value="crappie">crappie</option> -->
+          
+        </select>
+
+
+
+        
+
         <input
           id="location"
           type="text"
+          readonly="true"
           name="location"
-          placeholder="location*"
+          placeholder="location"
         />
+        
         <input
           id="date"
-          type="datetime-local"
+          type="text"
+          readonly="true"
+          
           name="date"
           placeholder="date (yyyy-mm-dd)"
         />
-        <input id="bait" type="text" name="bait" placeholder="bait" />
+        <select
+          id="bait" 
+          type="text"
+        
+          name="bait" 
+          placeholder="bait">
+          <option value="crankbait">crankbait</option>
+          <option value="spinner">spinner</option>
+          <option value="live worm">live worm</option>
+          <option value="plastic worm">plastic worm</option>
+          <option value="rooster tail">rooster tail</option>
+          </select>
+
+        <input
+          id="surfacePressure"
+          type="text"
+          readonly="true"
+          name="surfacePressure"
+          placeholder="surfacePressure"
+      />
 
         <input type="submit" value="Submit" />
       </form>
@@ -123,6 +171,7 @@
         <input type="submit" value="Submit" />
       </form>
 
+
       <p>
         <strong>GET user's exercise log: </strong>
         <code>GET /api/users/:_id/logs?[from][&amp;to][&amp;limit]</code>
@@ -133,19 +182,91 @@
         number
       </p>
     </div>
-    <!-- <script src="./script.js"> -->
+   
+
+
+  <script>
+
+
+
+//add options to combo boxes
+
+let fishSelect = document.getElementById("fishtype");
+
+let fishText = document.getElementById("addAFish");
+
+function addNewFish(select, inputbox){
+
+  var option = document.createElement("option");
+  option.text = inputbox.value;
+  select.add(option);
+
+  
+  fishBox.style.visibility = "hidden";
+
+  fishAddButton.style.visibility = "hidden";
+}
+
+//make textbox to add a new fish appear
+
+function addBoxVis(){
+  fishBox = document.getElementById("addAFish");
+  fishAddButton = document.getElementById("addFish");
+
+  fishBox.style.visibility = "visible";
+
+  fishAddButton.style.visibility = "visible";
+
+}
+
+
+
+  </script>
+
+
+
+<script>
+
+//fetch data from fishlib and add it to the fishtype selection box
+
+let fishLib;
+
+const fetchFishLib = () => {
+     fetch(`http://localhost:5500/api/fishtype`) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+     console.log(data);
+    
+     fishLib = data;
+
+    })
+    .then(() => {
+
+    // fill fishtype selection box with fishtype data from fishLib collection
+
+    const fishTypeMap = fishLib.map(fishSpecies => {
+
+      var option = document.createElement("option");
+    option.text = fishSpecies.fishtype;
+    fishSelect.add(option);
+
+    })
+
+  
+
+    })
+  }
+
+  fetchFishLib();
+
+</script>
+
+
+
     <script>
       let allFishData;
 
-//fetch fishing data that represents number of each fish type caught
-// fetch("/api/fish", )
-//   .then(response) => response.json())
-//   .then(data) => {
-//     allFishData = data
-//     console.log(allFishData)
-//   });
 
-// console.log("script.js is working properly");
 
 let latitude;
 let longitude;
@@ -159,6 +280,21 @@ let cloud_box = document.getElementById("cloudcover");
 let wind_box = document.getElementById("windspeed");
 
 let precip_box = document.getElementById("precip");
+
+let date_box = document.getElementById("date");
+
+let location_box = document.getElementById("location");
+
+let surfacePressure_box = document.getElementById("surfacePressure");
+
+
+//create options object for third argument in geolocation function
+
+let options = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0
+};
 
 //get current position with geolocation api
 
@@ -174,10 +310,14 @@ const successCallback = (position) => {
   console.log(longitude);
   console.log(latitude);
 
+  const latLongString = latitude + "," + longitude;
+
+  console.log(latLongString)
+
   //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
 
   fetch(
-    `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability`,
+    `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability,surface_pressure`,
   ) //api for the get request
     .then((response) => response.json())
     .then((data) => {
@@ -193,6 +333,14 @@ const successCallback = (position) => {
 
       precip_box.value = data.current.precipitation;
 
+      surfacePressure_box.value = data.current.surface_pressure;
+
+      location_box.value = latLongString;
+
+      //date_box.value = data.current.time;
+
+      date_box.value = new Date().toLocaleString('en-US')
+
       console.log(data);
 
       console.log(temp_label.value);
@@ -203,104 +351,10 @@ const errorCallback = (error) => {
   console.log(error);
 };
 
-navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
     </script>
   
 
-
-
-
-
-
-
-  <script type="module">
-
-  //import d3 to build bar chart
-
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-
-
- let fishCountArr = [];
- 
-    let fetchtest;
-    
-    const fetchFishCount = async () => {
-      await fetch(`http://localhost:5500/api/alldata`) //api for the get request
-    .then((response) => response.json())
-    .then((data) => {
-     console.log(data);
-     //fetchtest = JSON.stringify(data)
-     fetchtest = data;
-     let fetchLabel = document.getElementById("fetchtest");
-  fetchLabel.innerHTML = fetchtest
-
-//clean up data into neat array for d3 manipulation
-
-for (let i = 0; i < fetchtest.length; i++){
-   //create mini arr of fishtype and count
-   let miniFishArr = [fetchtest[i]._id, fetchtest[i].myCount];
-   fishCountArr.push(miniFishArr); 
-}
-
-
-fetchLabel.innerHTML = fishCountArr
-    });
-    return fishCountArr;
-  }
-
-  fetchFishCount();
-
-  console.log(fishCountArr)
-  const dataset = [12, 31, 22, 17, 25, 18, 29, 14, 9];
-const newData = [['bass',2],['shark',20],['catfish',2]];
-const newDataTwo = [...fishCountArr]
-const data = await d3.json("http://localhost:5500/api/alldata")
-console.log(`data: ${data}`)
-console.log(data);
-const w = 500;
-const h = 100;
-
-const svg = d3.select("body")
-.append("svg")
-.attr("width", w)
-.attr("height", h)
-
-svg.selectAll("rect")
-.data(data)
-.enter()
-.append("rect")
-.attr("width", 25)
-.attr("height", (d,i) => d.myCount * 10
-)
-.attr("x", (d,i) => {
-  return i * 30
-})
-.attr("y", (d,i) => h - d.myCount * 10
-)
-.attr("fill","navy")
-.attr("class","bar")
-
-// add text labels to column chart
-svg.selectAll("text")
-       .data(data)
-       .enter()
-       // Add your code below this line
-        .append("text")
-        .attr("x", (d, i) => {
-          return i * 30
-        })
-        .attr("y", (d) => h - d.myCount * 10 - 10)
-        .text((d) => {
-        return d.myCount
-        })
-        
-        .attr("fill", "red")
-        .style("font-size", "25px")
-
-   
-  </script>
-       <a href="/barChart">barChart</a><br><br>
-       <a href="/chartjs">chartjs</a>
 
   </body>
 </html>
