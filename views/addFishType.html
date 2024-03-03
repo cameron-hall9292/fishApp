@@ -1,0 +1,128 @@
+<html>
+    <body>
+
+<div>
+
+
+<form action="/api/fishtype" method="post">
+    <h2>Add a new fish type!</h2>
+    <input id="addAFish" name="fishtype" type="text"
+    placeholder="add a new fish type" />
+    <input type="submit" value="Submit" />
+  </form>
+
+  
+
+
+  <button id="post" onclick="addFish()">post a fish!!!</button>
+
+  <form id="newPost">
+    <label>
+      Name
+      <input type="text" id="newPostVal" />
+    </label>
+    <button type="submit">Add</button>
+  </form>
+
+
+
+</div>
+
+
+   
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+<script>
+
+let BASE_URL = "http://192.168.1.123:5500"
+
+const form = document.getElementById('newPost');
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const fishVal = document.querySelector('#newPostVal').value;
+
+  const postVal = {
+    fishtype: fishVal
+  };
+console.log(postVal);
+  const submitTodoItem = await addTodoItem(postVal);
+  //updateTodoList(submitTodoItem);
+});
+
+
+  const addTodoItem = async postVal => {
+  try {
+    const response = await axios.post(`${BASE_URL}/api/fishtype`, 
+     postVal,
+    { headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    
+    }
+  });
+    const newTodoItem = response.data;
+
+    console.log(`Added a new Todo!`, newTodoItem);
+
+    return newTodoItem;
+  } catch (errors) {
+    console.error(errors);
+  }
+};
+
+
+</script>
+
+
+
+
+
+
+
+
+<script>
+
+
+
+  let textbox = document.getElementById("addAFish");
+
+  let postButton = document.getElementById("post");
+  
+  const addFish = async () => {
+   
+    try{
+      const res = await axios.post("http://192.168.1.123:5500/api/fishtype",textbox.value);
+      
+      
+  
+      console.log(res);
+      console.log(textbox.value);
+     alert("post successful");
+  
+   
+    }catch(err){
+      console.log(err);
+    }
+    }
+  </script>
+  
+<script>
+
+  function add(a,b){
+    console.log(a + b);
+    return a + b;
+  }
+
+    // postButton.addEventListener("click",function(){
+    //   console.log("post worked")
+    // })
+
+    // postButton.addEventListener("click",add(1,2));
+      
+  </script>
+
+</body>
+</html>

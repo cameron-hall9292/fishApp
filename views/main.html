@@ -15,56 +15,12 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   
-  <style>
-    .bar:hover {
-      fill: brown;
-    }
-  </style>
+  
   <body>
     <div class="container">
-      <span>latitude: </span>
-      <span id="latitude"></span><br />
-      <span>longitude: </span>
-      <span id="longitude"></span><br />
-
-      <span>temperature:</span>
-      <span id="temp"></span><br><br>
-      <div id="fetchtest">fetch test </div>
-
-      <a href="selectRecord">records</a>
-      <a href="chartjs">fish type chart</a>
-      <a href="pressureChart">surface pressure chart</a>
-
-
 
       <h1>Fish tracker</h1>
 
-      <button id="addFish" name="addFish" onclick="addNewFish(fishSelect,fishText)">submit new fish type</button>   
-      <button id="addBox" name="addFish" onclick="addBoxVis()">add new fish type</button>   
-
-      
-      <form action="/api/fishtype" method="post">
-        <h2>Add a new fish type!</h2>
-        <input id="addAFish" name="fishtype" type="text"
-        placeholder="add a new fish type" />
-        <input type="submit" value="Submit" />
-      </form>
-
-      
-      <form action="/api/bait" method="post">
-        <h2>Add a new bait!</h2>
-        <input id="addBait" name="bait" type="text"
-        placeholder="add a new bait" />
-        <input type="submit" value="Submit" />
-      </form>
-
-
-      <form action="/api/bodyofwater" method="post">
-        <h2>Add a new body of water!</h2>
-        <input id="addBodyOfWater" name="body_of_water" type="text"
-        placeholder="add a new body of water" />
-        <input type="submit" value="Submit" />
-      </form>
       
       <form action="/api/fish" method="post">
         <h2>Add a New Fish</h2>
@@ -102,10 +58,7 @@
           placeholder="precip in inches"
         />
         <select id="fishtype" type="text"  name="fishtype" placeholder="fish type">
-          <!-- <option value="largemouth bass">largemouth bass</option>
-          <option value="smallmouth bass">smallmouth bass</option>
-          <option value="walleye">walleye</option>
-          <option value="crappie">crappie</option> -->
+
           
         </select>
 
@@ -135,11 +88,7 @@
         
           name="bait" 
           placeholder="bait">
-          <!-- <option value="crankbait">crankbait</option>
-          <option value="spinner">spinner</option>
-          <option value="live worm">live worm</option>
-          <option value="plastic worm">plastic worm</option>
-          <option value="rooster tail">rooster tail</option> -->
+
           </select>
 
           <select
@@ -148,8 +97,7 @@
         
           name="body_of_water" 
           placeholder="bait">
-          <!-- <option value="clinton dam">clinton dam</option>
-          <option value="shawnee mission park">shawnee mission park</option> -->
+       
           </select>
 
         <input
@@ -162,93 +110,17 @@
 
         <input type="submit" value="Submit" />
       </form>
-      <form action="/api/fishtype" method="get">
-        <h2>Lookup fish!!!</h2>
-        <p><code>GET /api/fishtype</code></p>
-        <input
-          class="fishdata"
-          type="text"
-          name="fishtype"
-          placeholder="lookup fish type"
-        />
-        <input type="submit" value="Submit" />
-      </form>
 
-      <form action="/api/fishcount" method="get">
-        <h2>Lookup fish!!!</h2>
-        <p><code>GET /api/fishcount</code></p>
-        <input
-          class="fishdata"
-          type="text"
-          name="fishtype"
-          placeholder="lookup # of fish type!"
-        />
-        <input type="submit" value="Submit" />
-      </form>
+      <a href="addFishType"><button id="addFishType">add a new fish type</button></a>
+      <a href="addBait"><button id="addBait">add a new bait</button></a>
+      <a href="addBodyWater"><button id="addBodyWater">add a new body of water</button></a>
 
-      <form action="/api/fishbait" method="get">
-        <h2>Lookup fish!!!</h2>
-        <p><code>GET /api/fishbait</code></p>
-        <input
-          class="fishdata"
-          type="text"
-          name="fishbait"
-          placeholder="lookup # of fish caught by bait!"
-        />
-        <input type="submit" value="Submit" />
-      </form>
+      
+    
+    
+    
 
-
-      <p>
-        <strong>GET user's exercise log: </strong>
-        <code>GET /api/users/:_id/logs?[from][&amp;to][&amp;limit]</code>
-      </p>
-      <p><strong>[ ]</strong> = optional</p>
-      <p>
-        <strong>from, to</strong> = dates (yyyy-mm-dd); <strong>limit</strong> =
-        number
-      </p>
     </div>
-   
-
-
-  <script>
-
-
-
-//add options to combo boxes
-
-let fishSelect = document.getElementById("fishtype");
-
-let fishText = document.getElementById("addAFish");
-
-function addNewFish(select, inputbox){
-
-  var option = document.createElement("option");
-  option.text = inputbox.value;
-  select.add(option);
-
-  
-  fishBox.style.visibility = "hidden";
-
-  fishAddButton.style.visibility = "hidden";
-}
-
-//make textbox to add a new fish appear
-
-function addBoxVis(){
-  fishBox = document.getElementById("addAFish");
-  fishAddButton = document.getElementById("addFish");
-
-  fishBox.style.visibility = "visible";
-
-  fishAddButton.style.visibility = "visible";
-
-}
-
-
-
-  </script>
 
 
 
@@ -257,6 +129,8 @@ function addBoxVis(){
 //fetch data from fishlib and add it to the fishtype selection box
 
 let fishLib;
+
+let fishSelect = document.getElementById("fishtype");
 
 const fetchFishLib = () => {
      fetch(`http://localhost:5500/api/fishtype`) //api for the get request
@@ -419,10 +293,7 @@ let options = {
 
 const successCallback = (position) => {
   console.log(position);
-  document.getElementById("latitude").innerHTML =
-    position.coords.latitude;
-  document.getElementById("longitude").innerHTML =
-    position.coords.longitude;
+ 
   latitude = position.coords.latitude;
   longitude = position.coords.longitude;
 
@@ -440,7 +311,7 @@ const successCallback = (position) => {
   ) //api for the get request
     .then((response) => response.json())
     .then((data) => {
-      temp_label.innerHTML = data.current.temperature_2m;
+
 
       // make temp form box = temp fetched from openmeteo api
 
@@ -462,7 +333,7 @@ const successCallback = (position) => {
 
       console.log(data);
 
-      console.log(temp_label.value);
+    
     });
 };
 

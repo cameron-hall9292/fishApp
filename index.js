@@ -10,7 +10,11 @@ const { Schema } = mongoose;
 
 mongoose.connect(process.env.DB_CONNECT);
 
+
+//create main schema
+
 const fishSchema = new Schema({
+  body_of_water: Object,
   temp: Object,
   cloudcover: Object,
   windspeed: Object,
@@ -24,16 +28,43 @@ const fishSchema = new Schema({
 {timestamps: true}
 );
 
+//create fish species schema
+
 
 const fishTypeSchema = new Schema({
   fishtype: Object
+});
+
+
+//create fish bait schema
+
+const baitSchema = new Schema({
+  bait: Object
 })
+
+//create body of water schema
+
+const bodyOfWaterSchema = new Schema({
+  body_of_water: Object
+})
+
+
+
+//create main library
 
 const Fish = mongoose.model("Fish", fishSchema);
 
 //create fish species library
 
 const fishLib = mongoose.model("FishLib", fishTypeSchema);
+
+//create bait library
+
+const baitLib = mongoose.model("BaitLib", baitSchema);
+
+//create body of water library
+
+const waterLib = mongoose.model("Body of Water", bodyOfWaterSchema)
 
 app.use(cors());
 app.use(express.static("public"));
@@ -60,6 +91,30 @@ app.get("/pressureChart", (req, res) => {
 app.get("/selectRecord", (req, res) => {
   res.sendFile(__dirname + "/views/selectRecord.html");
 });
+
+app.get("/main", (req, res) => {
+  res.sendFile(__dirname + "/views/main.html");
+});
+
+app.get("/addFishType", (req, res) => {
+  res.sendFile(__dirname + "/views/addFishType.html");
+});
+
+app.get("/addBait", (req, res) => {
+  res.sendFile(__dirname + "/views/addBait.html");
+});
+
+
+app.get("/addBodyWater", (req, res) => {
+  res.sendFile(__dirname + "/views/addBodyWater.html");
+});
+
+app.get("/table", (req, res) => {
+  res.sendFile(__dirname + "/views/table.html");
+});
+
+
+
 
 
 //make a table of fishtypes to add to selection box
@@ -95,11 +150,81 @@ app.get("/api/fishtype", async (req, res) => {
 });
 
 
-//post fish data
+//post bait data to db
+
+
+app.post("/api/bait", async (req, res) => {
+
+  console.log(req.body);
+  const {bait} = req.body;
+
+  const baitObj = new baitLib({bait});
+  try {
+    const baitSave = await baitObj.save();
+    res.json({bait: baitObj.bait});
+  } catch (err) {
+    console.log(err);
+  }
+
+});
+
+
+//get bait data
+
+const baitData = {
+  _id: 0,
+  bait: 1
+
+}
+
+app.get("/api/bait", async (req, res) => {
+  const fishData = await baitLib.find({},baitData);
+
+  res.json(fishData);
+});
+
+
+// post body of water data
+
+
+app.post("/api/bodyofwater", async (req, res) => {
+
+  console.log(req.body);
+  const {body_of_water} = req.body;
+
+  const waterObj = new waterLib({body_of_water});
+  try {
+    const waterSave = await waterObj.save();
+    res.json({body_of_water: waterObj.body_of_water});
+  } catch (err) {
+    console.log(err);
+  }
+
+});
+
+//get body of water data
+
+const bodyOfWaterData = {
+  _id: 0,
+  body_of_water: 1
+
+}
+
+app.get("/api/bodyofwater", async (req, res) => {
+  const fishData = await waterLib.find({},bodyOfWaterData);
+
+  res.json(fishData);
+});
+
+
+
+
+//post main fish data
 
 app.post("/api/fish", async (req, res) => {
   console.log(req.body);
   const {
+    body_of_water,
     temp,
     cloudcover,
     windspeed,
@@ -111,6 +236,7 @@ app.post("/api/fish", async (req, res) => {
     surfacePressure,
   } = req.body;
   const fishObj = new Fish({
+    body_of_water,
     temp,
     cloudcover,
     windspeed,
@@ -140,6 +266,7 @@ app.post("/api/fish", async (req, res) => {
 //get all fish data back
 
 const desiredData = {
+  body_of_water: 1,
   temp: 1,
   cloudcover: 1,
   windspeed: 1,

@@ -4,7 +4,8 @@
 
 <body>
     <div>   
-
+        <span>body_of_water: </span>
+        <span id="water"></span><br />
         <span>bait: </span>
         <span id="bait"></span><br />
         <span>cloudcover: </span>
@@ -37,6 +38,7 @@
 
 let record = 0;
 
+const bodyOfWater = document.getElementById("water");
 const bait = document.getElementById("bait");
 const cloudcover = document.getElementById("cloudcover");
 const date = document.getElementById("date");
@@ -78,7 +80,7 @@ else {
 
 record++;
 
-
+bodyOfWater.innerHTML = await fetchedData[record].body_of_water;
  bait.innerHTML = await fetchedData[record].bait
  cloudcover.innerHTML = await fetchedData[record].cloudcover
  date.innerHTML = await fetchedData[record].date
@@ -103,6 +105,8 @@ else {
     
 record--;
 
+
+bodyOfWater.innerHTML = await fetchedData[record].body_of_water;
 bait.innerHTML = await fetchedData[record].bait
 cloudcover.innerHTML = await fetchedData[record].cloudcover
 date.innerHTML = await fetchedData[record].date

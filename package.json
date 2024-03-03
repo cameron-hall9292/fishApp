@@ -6,18 +6,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "restart": "node index.js"
+    "restart": "node index.js",
+    "dev": "parcel addFishType.html",
+    "build": "parcel build addFishType.html"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^18.0.6",
+    "axios": "^1.6.7",
     "chart.js": "^4.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "mongoose": "^8.1.1",
-    "node-fetch": "^3.2.6"
+    "node-fetch": "^3.2.6",
+    "parcel-bundler": "^1.12.5"
   }
 }
