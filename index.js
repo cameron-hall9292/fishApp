@@ -117,6 +117,11 @@ app.get("/newmain", (req, res) => {
   res.sendFile(__dirname + "/views/newMain.html");
 });
 
+app.get("/map", (req, res) => {
+  res.sendFile(__dirname + "/views/map.html");
+});
+
+
 
 
 
