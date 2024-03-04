@@ -38,34 +38,66 @@
 
 //var hillsDale = L.marker([38.65505571490933, -94.90200003340435]).addTo(map);
 
+let fetchedData;
 
-let coords = [{coords: "38.408873970672005, -82.47472396166694" }, {coords: "40.70205608467023, -74.00029179801221"}, {coords: "34.05759646737684, -118.24177076654848" }];
+function fetchCoords(){
 
-let firstCoord = coords[0].coords;
+fetch(`http://localhost:5500/api/fish`) //api for the get request
+.then((response) => response.json())
+.then((data) => {
+fetchedData = data;
+console.log(fetchedData);
+})
+.then(() => {
 
+const markerMap = fetchedData.map(cor => {
 
-//use map function to make markers of coords from pretend JSON data
+let commaPos = cor.location.indexOf(',');
 
-const markerMap = coords.map(cor => {
+let lat = parseFloat(cor.location.substring(0,commaPos));
 
-    let commaPos = cor.coords.indexOf(',');
+let long = parseFloat(cor.location.substring(commaPos + 1, cor.location.length))
 
-    let lat = parseFloat(cor.coords.substring(0,commaPos));
+let markers = L.marker([lat,long]).addTo(map);
 
-    let long = parseFloat(cor.coords.substring(commaPos + 1, cor.coords.length))
-
-    let markers = L.marker([lat,long]).addTo(map);
+markers.bindPopup(`<h1>${cor.body_of_water}</h1><h2>${cor.fishtype}</h2>`).openPopup();
 
 });
 
 
-var commaPos = firstCoord.indexOf(',');
+})
+}
 
-console.log(commaPos);
+fetchCoords();
 
-console.log(parseFloat(firstCoord.substring(0,commaPos)))
 
-console.log(parseFloat(firstCoord.substring(commaPos + 1,firstCoord.length)))
+// let coords = [{coords: "38.408873970672005, -82.47472396166694" }, {coords: "40.70205608467023, -74.00029179801221"}, {coords: "34.05759646737684, -118.24177076654848" }];
+
+//let firstCoord = coords[0].coords;
+
+
+//use map function to make markers of coords from pretend JSON data
+
+// const markerMap = coords.map(cor => {
+
+//     let commaPos = cor.coords.indexOf(',');
+
+//     let lat = parseFloat(cor.coords.substring(0,commaPos));
+
+//     let long = parseFloat(cor.coords.substring(commaPos + 1, cor.coords.length))
+
+//     let markers = L.marker([lat,long]).addTo(map);
+
+// });
+
+
+// var commaPos = firstCoord.indexOf(',');
+
+// console.log(commaPos);
+
+// console.log(parseFloat(firstCoord.substring(0,commaPos)))
+
+// console.log(parseFloat(firstCoord.substring(commaPos + 1,firstCoord.length)))
 
 // var clinton = L.marker([coords[0].coords]).addTo(map);
 
@@ -88,7 +120,7 @@ var polygon = L.polygon([
 
 //add popups!!!
 
-marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+//marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
 circle.bindPopup("I am a circle.");
 polygon.bindPopup("I am a polygon.");
 
