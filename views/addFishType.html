@@ -4,17 +4,14 @@
 <div>
 
 
-<form action="/api/fishtype" method="post">
+<!-- <form action="/api/fishtype" method="post">
     <h2>Add a new fish type!</h2>
     <input id="addAFish" name="fishtype" type="text"
     placeholder="add a new fish type" />
     <input type="submit" value="Submit" />
-  </form>
-
-  
+  </form> -->
 
 
-  <button id="post" onclick="addFish()">post a fish!!!</button>
 
   <form id="newPost">
     <label>
@@ -49,12 +46,12 @@ form.addEventListener('submit', async event => {
     fishtype: fishVal
   };
 console.log(postVal);
-  const submitTodoItem = await addTodoItem(postVal);
-  //updateTodoList(submitTodoItem);
+  const submitFishType = await addFishType(postVal);
+  //updateTodoList(submitFishType);
 });
 
 
-  const addTodoItem = async postVal => {
+  const addFishType = async postVal => {
   try {
     const response = await axios.post(`${BASE_URL}/api/fishtype`, 
      postVal,
@@ -63,11 +60,15 @@ console.log(postVal);
     
     }
   });
-    const newTodoItem = response.data;
+    const newFishType = response.data;
 
-    console.log(`Added a new Todo!`, newTodoItem);
+    alert(`Added a new fish type!`, newFishType)
 
-    return newTodoItem;
+    console.log(`Added a new Todo!`, newFishType);
+
+    window.location.href = "main";
+
+    return newFishType;
   } catch (errors) {
     console.error(errors);
   }
@@ -77,52 +78,6 @@ console.log(postVal);
 </script>
 
 
-
-
-
-
-
-
-<script>
-
-
-
-  let textbox = document.getElementById("addAFish");
-
-  let postButton = document.getElementById("post");
-  
-  const addFish = async () => {
-   
-    try{
-      const res = await axios.post("http://192.168.1.123:5500/api/fishtype",textbox.value);
-      
-      
-  
-      console.log(res);
-      console.log(textbox.value);
-     alert("post successful");
-  
-   
-    }catch(err){
-      console.log(err);
-    }
-    }
-  </script>
-  
-<script>
-
-  function add(a,b){
-    console.log(a + b);
-    return a + b;
-  }
-
-    // postButton.addEventListener("click",function(){
-    //   console.log("post worked")
-    // })
-
-    // postButton.addEventListener("click",add(1,2));
-      
-  </script>
 
 </body>
 </html>

@@ -1,0 +1,348 @@
+
+
+<html>
+    <body>
+        <div>
+            <form id="newPost">
+                <label>
+                  Name
+                  <select
+                  id="bodyOfWater" 
+                  type="text"
+                
+                  name="body_of_water" 
+                  placeholder="bait">
+               
+                  </select>
+            
+                  <select
+                      id="bait" 
+                      type="text"
+                    
+                      name="bait" 
+                      placeholder="bait">
+                      </select>
+                  <select
+                      id="fishtype" 
+                      type="text"  
+                      name="fishtype" 
+                      placeholder="fish type">
+                  </select>
+            
+                  <input type="text" id="cloudcover" />
+                  <input type="text" id="precip" />
+                  <input type="text" id="temp" />
+                  <input type="text" id="surfacePressure" />
+                  <input type="text" id="windspeed" />
+                  <input type="text" id="location" />
+                  <input type="text" id="date" />
+                </label>
+                <button type="submit">Add</button>
+              </form>
+
+        </div>
+    </body>
+
+        
+  
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+<script>
+
+  //declare global variables for form input boxes
+    
+    let temp_box = document.getElementById("temp");
+    
+    let cloud_box = document.getElementById("cloudcover");
+    
+    let wind_box = document.getElementById("windspeed");
+    
+    let precip_box = document.getElementById("precip");
+    
+    let date_box = document.getElementById("date");
+    
+    let location_box = document.getElementById("location");
+    
+    let surfacePressure_box = document.getElementById("surfacePressure");
+
+let BASE_URL = "http://192.168.1.123:5500"
+
+const form = document.getElementById('newPost');
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+
+let fish_box = document.getElementById("fishtype").value
+
+let bait_box = document.getElementById("bait").value
+
+let bodyWater = document.getElementById("bodyOfWater").value
+
+let temp_box = document.getElementById("temp").value
+
+let cloud_box = document.getElementById("cloudcover").value
+
+let wind_box = document.getElementById("windspeed").value
+
+let precip_box = document.getElementById("precip").value
+
+let date_box = document.getElementById("date").value
+
+let location_box = document.getElementById("location").value
+
+let surfacePressure_box = document.getElementById("surfacePressure").value
+
+  const postVal = {
+    body_of_water: bodyWater,
+    temp: temp_box,
+    cloudcover: cloud_box,
+    windspeed: wind_box,
+    precip: precip_box,
+    fishtype: fish_box,
+    location: location_box,
+    date: date_box,
+    bait: bait_box,
+    surfacePressure: surfacePressure_box,
+  };
+console.log(postVal);
+  const submitCatch = await addCatch(postVal);
+  //updateTodoList(submitFishType);
+});
+
+
+  const addCatch = async postVal => {
+  try {
+    const response = await axios.post(`${BASE_URL}/api/fish`, 
+     postVal,
+    { headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    
+    }
+  });
+    const newCatch = response.data;
+
+    alert(`Added a new catch!`, newCatch)
+
+    console.log(`Added a new catch!`, newCatch);
+
+    window.location.href = "table";
+
+    return newCatch;
+  } catch (errors) {
+    console.error(errors);
+  }
+};
+    </script>
+
+
+<script>
+
+    //fetch data from fishlib and add it to the fishtype selection box
+    
+    let fishLib;
+    
+    let fishSelect = document.getElementById("fishtype");
+    
+    const fetchFishLib = () => {
+         fetch(`http://localhost:5500/api/fishtype`) //api for the get request
+        .then((response) => response.json())
+        .then((data) => {
+         console.log(data);
+        
+         fishLib = data;
+    
+        })
+        .then(() => {
+    
+        // fill fishtype selection box with fishtype data from fishLib collection
+    
+        const fishTypeMap = fishLib.map(fishSpecies => {
+    
+          var option = document.createElement("option");
+        option.text = fishSpecies.fishtype;
+        fishSelect.add(option);
+    
+        })
+    
+      
+    
+        })
+      }
+    
+      fetchFishLib();
+    
+    </script>
+    
+    
+    
+    
+    
+    
+    <script>
+    
+    // fetch bait data and load it into the bait selection box
+    
+    
+    let baitLib;
+    
+    let baitSelect = document.getElementById("bait");
+    
+    const fetchBaitLib = () => {
+         fetch(`http://localhost:5500/api/bait`) //api for the get request
+        .then((response) => response.json())
+        .then((data) => {
+         console.log(data);
+        
+         baitLib = data;
+    
+        })
+        .then(() => {
+    
+        // fill fishtype selection box with fishtype data from fishLib collection
+    
+        const baitTypeMap = baitLib.map(bait => {
+    
+          var option = document.createElement("option");
+        option.text = bait.bait;
+        baitSelect.add(option);
+    
+        })
+    
+      
+    
+        })
+      }
+    
+      fetchBaitLib();
+    
+    
+    
+    
+    </script>
+    
+    
+    
+    
+    
+    
+    <script>
+    
+      // fetch bait data and load it into the bait selection box
+      
+      
+      let waterLib;
+      
+      let waterSelect = document.getElementById("bodyOfWater");
+      
+      const fetchWaterLib = () => {
+           fetch(`http://localhost:5500/api/bodyofwater`) //api for the get request
+          .then((response) => response.json())
+          .then((data) => {
+           console.log(data);
+          
+           waterLib = data;
+      
+          })
+          .then(() => {
+      
+          // fill fishtype selection box with fishtype data from fishLib collection
+      
+          const bodyOfWaterMap = waterLib.map(water => {
+      
+            var option = document.createElement("option");
+          option.text = water.body_of_water;
+          waterSelect.add(option);
+      
+          })
+      
+        
+      
+          })
+        }
+      
+        fetchWaterLib();
+      
+      
+      
+      
+      </script>
+    
+        <script>
+          let allFishData;
+    
+    
+    
+    let latitude;
+    let longitude;
+    
+   
+    
+    
+    //create options object for third argument in geolocation function
+    
+    let options = {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 0
+    };
+    
+    //get current position with geolocation api
+    
+    const successCallback = (position) => {
+      console.log(position);
+     
+      latitude = position.coords.latitude;
+      longitude = position.coords.longitude;
+    
+      console.log(longitude);
+      console.log(latitude);
+    
+      const latLongString = latitude + "," + longitude;
+    
+      console.log(latLongString)
+    
+      //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
+    
+      fetch(
+        `https://api.open-meteo.com/v1/forecast?timezone=auto&latitude=${latitude}&longitude=${longitude}&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&current=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m,precipitation,precipitation_probability,surface_pressure`,
+      ) //api for the get request
+        .then((response) => response.json())
+        .then((data) => {
+    
+    
+          // make temp form box = temp fetched from openmeteo api
+    
+          temp_box.value = data.current.temperature_2m;
+    
+          cloud_box.value = data.current.cloud_cover;
+    
+          wind_box.value = data.current.wind_speed_10m;
+    
+          precip_box.value = data.current.precipitation;
+    
+          surfacePressure_box.value = data.current.surface_pressure;
+    
+          location_box.value = latLongString;
+    
+          //date_box.value = data.current.time;
+    
+          date_box.value = new Date().toLocaleString('en-US')
+    
+          console.log(data);
+
+          console.log(`weather data: ${data}`)
+    
+        
+        });
+    };
+    
+    const errorCallback = (error) => {
+      console.log(error);
+    };
+    
+    navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
+        </script>
+</html>
+

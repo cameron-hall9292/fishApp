@@ -5,18 +5,121 @@
 
 
 <html>
+    <head>
+        <style>
+           table, th, td {
+              border: 1px solid black;
+              border-collapse: collapse; 
+           }
+           td, th {
+              padding: 10px;
+           }
+        </style>
+     </head>
     <body>
-        <div>
-
-
-            <h1>I am a table!!!</h1>
-   
-         
+        <div id="container">
     
-
-
-
         </div>
     </body>
+
+    <script>
+    
+    let allData;
+    
+    fetch(`http://localhost:5500/api/fish`) //api for the get request
+    .then((response) => response.json())
+    .then((data) => {
+     console.log(data);
+
+     //create container element for table
+
+     let container = document.getElementById("container");
+
+     //create table element
+
+     let table = document.createElement("table");
+
+    //extract tables headers by getting object keys from the returned JSON
+
+     let keys = Object.keys(data[0]);
+
+    //create table headers using keys
+
+    let thead = document.createElement("thead");
+    let tr = document.createElement("tr");
+
+    //use map function to create header cells
+
+    let headerElements = keys.map(header => {
+        let th = document.createElement("th");
+        th.innerText = header;
+        tr.appendChild(th);
+    });
+
+    thead.appendChild(tr);
+    table.append(tr);
+
+    //loop through json data and create table rows
+
+    const cellData = data.map(cellD => {
+
+        let tr = document.createElement("tr");
+
+        //get values of object in JSON data
+
+        let values = Object.values(cellD);
+
+        //map through values and create table cells
+
+        const tableCells = values.map(val => {
+            let td = document.createElement("td");
+            td.innerText = val;
+            tr.appendChild(td);
+        });
+
+        table.appendChild(tr);
+
+
+    });
+
+    container.appendChild(table);
+
+
+
+
+
+    
+    // let tableHeader = document.getElementById("tableHeaders");
+
+    // const headerMap = keys.map(header => {
+
+    //     let tableHead = document.createElement("th");
+    //     tableHead.innerText = header;
+    //     tableHeader.append(tableHead)
+        
+
+    // })
+
+   
+
+
+
+    
+//      const bodyOfWaterMap = waterLib.map(water => {
+  
+//   var option = document.createElement("option");
+// option.text = water.body_of_water;
+// waterSelect.add(option);
+
+// })
+
+
+     console.log(`keys: ${keys}`);
+     console.log(keys);
+     //fetchtest = JSON.stringify(data)
+      allData = data;
+   
+    })
+    </script>
 </html>
 

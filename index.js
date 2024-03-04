@@ -113,6 +113,11 @@ app.get("/table", (req, res) => {
   res.sendFile(__dirname + "/views/table.html");
 });
 
+app.get("/newmain", (req, res) => {
+  res.sendFile(__dirname + "/views/newMain.html");
+});
+
+
 
 
 
@@ -300,20 +305,6 @@ app.get("/api/alldata", async (req, res) => {
  ] )
  res.json(fishData)
  console.log(fishData);
-
-
-
- //clean up data into neat array for d3 manipulation
-
- let fishCountArr = [];
-
- for (let i = 0; i < fishData.length; i++){
-    //create mini arr of fishtype and count
-    let miniFishArr = [fishData[i]._id, fishData[i].myCount];
-    fishCountArr.push(miniFishArr); 
- }
-
- console.log(fishCountArr)
 
 });
 

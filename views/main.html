@@ -111,6 +111,10 @@
         <input type="submit" value="Submit" />
       </form>
 
+      
+  
+
+
       <a href="addFishType"><button id="addFishType">add a new fish type</button></a>
       <a href="addBait"><button id="addBait">add a new bait</button></a>
       <a href="addBodyWater"><button id="addBodyWater">add a new body of water</button></a>
@@ -257,8 +261,6 @@ const fetchBaitLib = () => {
   </script>
 
     <script>
-      let allFishData;
-
 
 
 let latitude;
@@ -344,7 +346,6 @@ const errorCallback = (error) => {
 navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
     </script>
   
-
 
   </body>
 </html>

@@ -11,13 +11,78 @@
 
 
    
-         
+<!--          
       <form action="/api/bodyofwater" method="post">
         <h2>Add a new body of water!</h2>
         <input id="addBodyOfWater" name="body_of_water" type="text"
         placeholder="add a new body of water" />
         <input type="submit" value="Submit" />
+      </form> -->
+
+
+      <form id="newPost">
+        <label>
+          Name
+          <input type="text" id="newPostVal" />
+        </label>
+        <button type="submit">Add</button>
       </form>
+    
+    
+    
+    </div>
+    
+    
+       
+    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
+    
+    <script>
+    
+    let BASE_URL = "http://192.168.1.123:5500"
+    
+    const form = document.getElementById('newPost');
+    
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+    
+      const fishVal = document.querySelector('#newPostVal').value;
+    
+      const postVal = {
+        body_of_water: fishVal
+      };
+    console.log(postVal);
+      const submitBodyOfWater = await addBodyOfWater(postVal);
+      //updateTodoList(submitBodyOfWater);
+    });
+    
+    
+      const addBodyOfWater = async postVal => {
+      try {
+        const response = await axios.post(`${BASE_URL}/api/bodyofwater`, 
+         postVal,
+        { headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        
+        }
+      });
+        const newBodyOfWater = response.data;
+
+        alert(`Added a new body of water!`, newBodyOfWater)
+    
+        console.log(`Added a new body of water!`, newBodyOfWater);
+
+        window.location.href = "main";
+    
+        return newBodyOfWater;
+      } catch (errors) {
+        console.error(errors);
+      }
+    };
+    
+    
+    </script>
 
 
 
