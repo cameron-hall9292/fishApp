@@ -1,0 +1,110 @@
+
+<html>
+    <body>
+        <div>
+
+
+
+
+              <form id="newPost">
+                <label>
+                  email
+                  <input type="text" name = "email" id="email" /><br><br>
+                <label>
+                password
+                <input type="text" name = "password" id="password" /><br><br>
+                </label>
+                <button type="submit">login</button>
+              </form>
+            
+            
+            
+            </div>
+            
+            
+               
+            
+            <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+            
+            
+            <script>
+            
+            let BASE_URL = "http://192.168.1.123:5500"
+            
+            const form = document.getElementById('newPost');
+            
+            form.addEventListener('submit', async event => {
+              event.preventDefault();
+            
+                let email = document.getElementById("email").value
+
+                let password= document.getElementById("password").value
+             
+            
+              const postVal = {
+                email: email,
+                password: password,
+              };
+            //console.log(postVal);
+              const submitUser = await subUser(postVal);
+              //updateTodoList(submitBait);
+            });
+            
+            
+              const subUser = async postVal => {
+
+              try {
+                const response = await axios.post(`${BASE_URL}/api/login`, 
+                 postVal,
+                { headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                
+                }
+              });
+
+                
+                alert("login successful");
+        
+                console.log("login successful");
+       
+            
+              //go back to home page
+
+                window.location.href = "newMain";
+
+
+               return
+
+           
+
+              } catch (errors) {
+
+                alert("incorrect email or password");
+             
+                console.error(errors);
+              }
+
+             
+              
+            }
+           
+            
+            
+            </script>
+        
+<script>
+
+  // go back to home page
+
+    // function goHome(){
+    //     window.location.href = "main";
+    //     console.log("i am going home")
+        
+    // }
+
+</script>
+
+
+        </div>
+    </body>
+</html>

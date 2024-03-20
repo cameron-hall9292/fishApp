@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -9,6 +10,19 @@ const { start } = require("repl");
 const { Schema } = mongoose;
 
 mongoose.connect(process.env.DB_CONNECT);
+
+
+//create users schema
+
+const userSchema = new Schema({
+
+email: String,
+password: String,
+
+
+
+
+})
 
 
 //create main schema
@@ -48,6 +62,11 @@ const bodyOfWaterSchema = new Schema({
   body_of_water: Object
 })
 
+
+
+//create users library
+
+const users = mongoose.model("Users", userSchema);
 
 
 //create main library
@@ -121,8 +140,104 @@ app.get("/map", (req, res) => {
   res.sendFile(__dirname + "/views/map.html");
 });
 
+app.get("/account", (req, res) => {
+  res.sendFile(__dirname + "/views/account.html");
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(__dirname + "/views/login.html");
+});
+
+//get data from users table for user login functionality
+
+app.post("/api/login", async(req,res) => {
+
+  let {email, password} = req.body;
+
+   //check if email already in DB
+
+   let emailCheck = await users.findOne({email:email});
+
+   if (!emailCheck) {
+     console.log("email does not exist in DB");
+     return res.status(422).json({error: "Email does not exist in database."})
+   }
+
+   //compare hash in DB to the hash of password user inputs into textbox
+
+   //console.log(emailCheck);
+
+   const dbHash = emailCheck.password;
 
 
+  bcrypt.compare(password, dbHash, function(err, result) {
+    if (err) console.log(err);
+   
+    else {
+        
+        if (result == false) {
+          console.log("password does not match");
+          res.status(422).json("error: incorrect password");
+          return 
+        } 
+        else if (result == true) {
+          console.log("password match");
+
+          res.json("login successful");
+          
+
+        }
+      
+        return result;
+
+    }
+  });
+
+
+   //res.json("login successful");
+
+
+
+})
+
+
+//post data to users table in order to create new user accounts with email and passwords
+
+app.post("/api/createaccount", async (req,res) => {
+  let {email, password} = req.body;
+
+  //check if email already in DB
+
+  let emailCheck = await users.findOne({email:email});
+
+  if (emailCheck) {
+    console.log("email already exists in DB");
+    return res.status(422).json({error: "Email already exists."})
+  }
+
+
+  // hash password before storing in DB
+
+  const saltRounds = 10;
+
+  bcrypt.hash(password, saltRounds, function(err, hash) {
+    if (err) console.log(err);
+    else {
+    
+      password = hash;
+      const userObj = new users({email,password});
+      try {
+        const userSave = userObj.save();
+       res.json({email: userObj.email, password: userObj.password})
+      } catch(err) {
+        console.log(err);
+      }
+    }
+});
+
+
+
+});
 
 
 
