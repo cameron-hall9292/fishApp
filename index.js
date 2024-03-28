@@ -2,7 +2,34 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
+const flash = require("express-flash");
+const session = require("express-session"); 
+const passport = require("passport");
+//const initializePassport = require('./passport-config');
+const methodOverride = require('method-override');
+const env = require("dotenv").config();
+
+
+
+
+
+//set view engine
+
+app.set('view-engine', 'ejs');
+
+app.use(express.urlencoded({extended: false}))
+
+app.use(flash());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+}))
+
+app.use(passport.initialize())
+app.use(passport.session());
+app.use(methodOverride('_method'))
 
 const mongoose = require("mongoose");
 const { start } = require("repl");
@@ -89,9 +116,150 @@ app.use(cors());
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
+
+
+
+//setup passport js authentication
+
+
+
+
+const LocalStrategy = require('passport-local').Strategy
+
+
+ 
+    const authenticateUser = async (email, password, done) => {
+        const user = await users.findOne({email: email});
+
+        console.log(user);
+        //.then((user) =>  {
+       
+        if (user == null) {
+            return done(null, false, {message: "No user with that email"
+        })
+    
+    }
+
+
+        try {
+            if (await bcrypt.compare(password, user.password)) {
+                console.log("password match");
+                return done(null,user)
+            }
+            else {
+                console.log("password mismatch");
+                return done(null, false, {message: "password incorrect"})
+            }
+
+        
+        } catch(error){
+            console.log(`error: ${error}`);
+            return done(error);
+
+        }
+
+       
+      }
+    
+    
+
+    passport.use(new LocalStrategy({ usernameField: 'email'}, 
+    authenticateUser))
+    passport.serializeUser((user, done) => done(null,user.id));
+
+    passport.deserializeUser((id, done) => {
+      return done(null, id)
+  });
+    
+
+    // app.use(passport.initialize());
+    // app.use(passport.session());
+
+
+
+
+
+
+
+
+//render present main page
+
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/index.html");
+  res.render("newMain.ejs");
 });
+
+
+//render login page
+
+app.get("/login",checkNotAuthenticated, (req, res) => res.render("login.ejs"));
+
+
+// use passport js to login via login page
+
+
+app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true,
+
+}))
+
+
+//render account registration page
+
+app.get("/register", checkNotAuthenticated, (req,res) => res.render("register.ejs"));
+
+
+
+//post data to users table in order to create new user accounts with email and passwords
+
+app.post("/register", checkNotAuthenticated, async (req,res) => {
+  let {email, password} = req.body;
+
+  //check if email already in DB
+
+  let emailCheck = await users.findOne({email:email});
+
+  if (emailCheck) {
+    console.log("email already exists in DB");
+    return res.redirect("/register");
+    //return res.status(422).json({error: "Email already exists."})
+  }
+
+
+  // hash password before storing in DB
+
+  const saltRounds = 10;
+
+  bcrypt.hash(password, saltRounds, function(err, hash) {
+    if (err) console.log(err);
+    else {
+    
+      password = hash;
+      const userObj = new users({email,password});
+      try {
+        const userSave = userObj.save();
+        res.redirect("/login");
+        console.log("new account added!");
+       //res.json({email: userObj.email, password: userObj.password})
+       
+      } catch(err) {
+        console.log(err);
+        res.redirect("/register");
+      }
+    }
+});
+
+
+
+});
+
+
+
+
+
+
+
 
 app.get("/barChart", (req, res) => {
   res.sendFile(__dirname + "/views/bar_chart.html");
@@ -132,9 +300,9 @@ app.get("/table", (req, res) => {
   res.sendFile(__dirname + "/views/table.html");
 });
 
-app.get("/newmain", (req, res) => {
-  res.sendFile(__dirname + "/views/newMain.html");
-});
+// app.get("/newmain", (req, res) => {
+//   res.sendFile(__dirname + "/views/newMain.html");
+// });
 
 app.get("/map", (req, res) => {
   res.sendFile(__dirname + "/views/map.html");
@@ -144,61 +312,67 @@ app.get("/account", (req, res) => {
   res.sendFile(__dirname + "/views/account.html");
 });
 
-app.get("/login", (req, res) => {
-  res.sendFile(__dirname + "/views/login.html");
-});
+// app.get("/login", (req, res) => {
+//   res.sendFile(__dirname + "/views/login.html");
+// });
+
+
+
+
+
+
 
 //get data from users table for user login functionality
 
-app.post("/api/login", async(req,res) => {
+// app.post("/login", async(req,res) => {
 
-  let {email, password} = req.body;
+//   let {email, password} = req.body;
 
-   //check if email already in DB
+//    //check if email already in DB
 
-   let emailCheck = await users.findOne({email:email});
+//    let emailCheck = await users.findOne({email:email});
 
-   if (!emailCheck) {
-     console.log("email does not exist in DB");
-     return res.status(422).json({error: "Email does not exist in database."})
-   }
+//    if (!emailCheck) {
+//      console.log("email does not exist in DB");
+//      return res.status(422).json({error: "Email does not exist in database."})
+//    }
 
-   //compare hash in DB to the hash of password user inputs into textbox
+//    //compare hash in DB to the hash of password user inputs into textbox
 
-   //console.log(emailCheck);
+//    //console.log(emailCheck);
 
-   const dbHash = emailCheck.password;
+//    const dbHash = emailCheck.password;
 
 
-  bcrypt.compare(password, dbHash, function(err, result) {
-    if (err) console.log(err);
+//   bcrypt.compare(password, dbHash, function(err, result) {
+//     if (err) console.log(err);
    
-    else {
+//     else {
         
-        if (result == false) {
-          console.log("password does not match");
-          res.status(422).json("error: incorrect password");
-          return 
-        } 
-        else if (result == true) {
-          console.log("password match");
+//         if (result == false) {
+//           console.log("password does not match");
+//           res.status(422).json("error: incorrect password");
+//           return 
+//         } 
+//         else if (result == true) {
+//           console.log("password match");
 
-          res.json("login successful");
+//           res.json("login successful");
           
 
-        }
+//         }
       
-        return result;
+//         return result;
 
-    }
-  });
+//     }
+//   });
 
 
    //res.json("login successful");
 
 
 
-})
+// })
 
 
 //post data to users table in order to create new user accounts with email and passwords
@@ -272,6 +446,16 @@ app.get("/api/fishtype", async (req, res) => {
   const fishData = await fishLib.find({},fishTypeData);
 
   res.json(fishData);
+});
+
+//get all user data
+
+app.get("/api/users", async (req, res) => {
+
+const userData =  await users.find({});
+
+res.json(userData);
+
 });
 
 
@@ -470,6 +654,38 @@ app.get("/api/fishcount", async (req, res) => {
   const resultobj = { fish: fishType, count: fishData };
   res.json(resultobj);
 });
+
+
+
+// add logout and checks for user authentication
+
+
+app.delete('/logout', (req, res) => {
+  req.logOut((error) => {
+      return error
+  });
+ 
+  res.redirect('/login');
+})
+
+
+
+function checkAuthenticated(req,res,next) {
+  if (req.isAuthenticated()){
+      return next()
+  }
+
+  res.redirect('/login');
+}
+
+function checkNotAuthenticated(req,res,next){
+  if (req.isAuthenticated()){
+     return res.redirect('/')
+  }
+  return next();
+}
+
+
 
 
 
