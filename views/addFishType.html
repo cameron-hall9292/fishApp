@@ -28,6 +28,23 @@
   </form>
 
 
+  <form action="/api/deleteFish" method="post" id="delete">
+
+
+    <label for="fishLib">fish library:</label>
+
+        <select
+            id="fishtypeSelect" 
+            type="text"  
+            name="fishtypeSelect" 
+            placeholder="fish type">
+        </select>
+
+      </label>
+      <button type="submit">DELETE</button>
+    </form>
+
+    <a href="/"><button id="newMain">HOME</button></a>
 
 </div>
 
@@ -107,6 +124,44 @@ console.log(postVal);
 
 
 </script>
+
+<script>
+
+  //fetch data from fishlib and add it to the fishtype selection box
+  
+  let fishLib;
+  
+  let fishSelect = document.getElementById("fishtype");
+  
+  const fetchFishLib = () => {
+       fetch(`http://localhost:5500/api/fishtype`) //api for the get request
+      .then((response) => response.json())
+      .then((data) => {
+       console.log(data);
+      
+       fishLib = data;
+  
+      })
+      .then(() => {
+  
+      // fill fishtype selection box with fishtype data from fishLib collection
+  
+      const fishTypeMap = fishLib.map(fishSpecies => {
+  
+        var option = document.createElement("option");
+      option.text = fishSpecies.fishtype;
+      fishtypeSelect.add(option);
+  
+      })
+  
+    
+  
+      })
+    }
+  
+    fetchFishLib();
+  
+  </script>
 
 
 

@@ -30,7 +30,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {maxAge: 60000}
+    cookie: {maxAge: 600000}
    
 }))
 
@@ -606,6 +606,100 @@ app.get("/api/bodyofwater", async (req, res) => {
 });
 
 
+//delete user fish record
+
+app.post("/api/deleteCatch", async (req, res) => {
+
+const filter = {_id: req.body.catchID};
+
+try {
+
+let doc = await Fish.findOneAndDelete(filter)
+
+res.redirect("/table");
+
+return doc;
+
+} catch(err){
+  if (err) console.log(err);
+}
+
+});
+
+//delete a bait from fish library
+
+app.post("/api/deleteBait", async (req,res) => {
+  
+  const filter = {
+    bait: req.body.baitSelect,
+    user_id: req.user.id
+  }
+
+  try {
+    let doc = await baitLib.deleteMany(filter);
+
+    res.redirect("/");
+
+   
+
+  }
+
+  catch(err) {
+    if (err) console.log(err);
+  }
+
+})
+
+
+//delete a fish from bait library
+
+app.post("/api/deleteFish", async (req,res) => {
+  
+  const filter = {
+    fishtype: req.body.fishtypeSelect,
+    user_id: req.user.id,
+   }
+
+  try {
+    let doc = await fishLib.deleteMany(filter);
+
+    res.redirect("/");
+
+    //res.json("fishtype deleted successfully")
+
+  }
+
+  catch(err) {
+    if (err) console.log(err);
+  }
+
+})
+
+
+
+//delete a body of water from water library
+
+app.post("/api/deleteWater", async (req,res) => {
+  
+  const filter = {
+    body_of_water: req.body.bodyWaterSelect,
+    user_id: req.user.id
+  }
+
+  try {
+    let doc = await waterLib.deleteMany(filter);
+
+    res.redirect("/");
+
+    //res.json("fishtype deleted successfully")
+
+  }
+
+  catch(err) {
+    if (err) console.log(err);
+  }
+
+})
 
 
 

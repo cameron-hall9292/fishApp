@@ -13,29 +13,47 @@
                 <input type="submit" value="Submit"  />
               </form> -->
 
-              <form id="newPost">
+  <form id="newPost">
 
 
-                  <input type="text" id="user_id" />                
-                  <input type="text" id="newPostVal" />
-                
-                <button type="submit">Add</button>
-              </form>
-            
-            
-            
-            </div>
-            
-            
-               
-            
-            <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-            
-            
-            <script>
+      <input type="text" id="user_id" />                
+      <input type="text" id="newPostVal" />
+    
+    <button type="submit">Add</button>
+  </form>
 
-              
-      //fetch username data
+  <form action="/api/deleteBait" method="post" id="delete">
+
+
+    <label for="baitLib">water library:</label>
+
+        <select
+            id="baitSelect" 
+            type="text"  
+            name="baitSelect" 
+            placeholder="select bait">
+        </select>
+
+      </label>
+      <button type="submit">DELETE</button>
+    </form>
+
+
+    <a href="/"><button id="newMain">HOME</button></a>
+
+
+</div>
+
+
+    
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+<script>
+
+  
+//fetch username data
 
 
 let userid = document.getElementById("user_id");
@@ -104,6 +122,49 @@ const fetchUsername = () => {
             
             
             </script>
+
+<script>
+    
+  // fetch bait data and load it into the bait selection box
+  
+  
+  let baitLib;
+  
+  let baitSelect = document.getElementById("baitSelect");
+  
+  const fetchBaitLib = () => {
+       fetch(`http://localhost:5500/api/bait`) //api for the get request
+      .then((response) => response.json())
+      .then((data) => {
+       console.log(data);
+      
+       baitLib = data;
+  
+      })
+      .then(() => {
+  
+      // fill fishtype selection box with fishtype data from fishLib collection
+  
+      const baitTypeMap = baitLib.map(bait => {
+  
+        var option = document.createElement("option");
+      option.text = bait.bait;
+      baitSelect.add(option);
+  
+      })
+  
+    
+  
+      })
+    }
+  
+    fetchBaitLib();
+  
+  
+  
+  
+  </script>
+  
 
 
         </div>
