@@ -14,10 +14,16 @@
 
 
   <form id="newPost">
-    <label>
-      Name
-      <input type="text" id="newPostVal" />
-    </label>
+
+
+
+
+      <input type="text" id="user_id" />
+    
+      <input type="text" id="fishtype" />
+
+      
+
     <button type="submit">Add</button>
   </form>
 
@@ -33,6 +39,27 @@
 
 <script>
 
+//fetch username data
+
+
+let userid = document.getElementById("user_id");
+
+
+const fetchUsername = () => {
+         fetch(`http://localhost:5500/api/userdata`) //api for the get request
+        .then((response) => response.json())
+        .then((data) => {
+         console.log(data);
+        
+         userid.value = data.id;
+    
+        })
+
+      }
+
+      fetchUsername();
+
+
 let BASE_URL = "http://192.168.1.123:5500"
 
 const form = document.getElementById('newPost');
@@ -40,11 +67,15 @@ const form = document.getElementById('newPost');
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
-  const fishVal = document.querySelector('#newPostVal').value;
+  const fishVal = document.querySelector('#fishtype').value;
+
+  const userID = document.querySelector('#user_id').value;
 
   const postVal = {
-    fishtype: fishVal
-  };
+     user_id: userID,
+    fishtype: fishVal,
+  }
+
 console.log(postVal);
   const submitFishType = await addFishType(postVal);
   //updateTodoList(submitFishType);
@@ -66,7 +97,7 @@ console.log(postVal);
 
     console.log(`Added a new Todo!`, newFishType);
 
-    window.location.href = "newMain";
+    window.location.href = "/";
 
     return newFishType;
   } catch (errors) {

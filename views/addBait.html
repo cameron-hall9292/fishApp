@@ -14,10 +14,11 @@
               </form> -->
 
               <form id="newPost">
-                <label>
-                  Name
+
+
+                  <input type="text" id="user_id" />                
                   <input type="text" id="newPostVal" />
-                </label>
+                
                 <button type="submit">Add</button>
               </form>
             
@@ -32,6 +33,27 @@
             
             
             <script>
+
+              
+      //fetch username data
+
+
+let userid = document.getElementById("user_id");
+
+
+const fetchUsername = () => {
+         fetch(`http://localhost:5500/api/userdata`) //api for the get request
+        .then((response) => response.json())
+        .then((data) => {
+         console.log(data);
+        
+         userid.value = data.id;
+    
+        })
+
+      }
+
+      fetchUsername();
             
             let BASE_URL = "http://192.168.1.123:5500"
             
@@ -41,8 +63,10 @@
               event.preventDefault();
             
               const fishVal = document.querySelector('#newPostVal').value;
+              const userID = document.querySelector('#user_id').value;
             
               const postVal = {
+                user_id: userID,
                 bait: fishVal
               };
             console.log(postVal);
@@ -66,7 +90,7 @@
             
                 console.log(`Added a new bait!`, newBait);
 
-                window.location.href = "newMain";
+                window.location.href = "/";
             
                 return newBait
               } catch (errors) {
@@ -80,15 +104,6 @@
             
             
             </script>
-        
-<script>
-    function goHome(){
-        window.location.href = "main";
-        console.log("i am going home")
-        
-    }
-
-</script>
 
 
         </div>
