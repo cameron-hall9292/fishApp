@@ -159,7 +159,35 @@ console.log(postVal);
       })
     }
   
-    fetchFishLib();
+    //fetchFishLib();
+
+
+    //use session storage rather than hitting our API again
+
+    retrieveFishTypeSession = sessionStorage.getItem("fishtype")
+
+      if (!retrieveFishTypeSession) {
+
+        fetchFishLib()
+       
+        console.log(" fish type data fetched");
+
+      }
+      else {
+
+        //parse session fish type data
+       
+        let parsedSessionData = JSON.parse(retrieveFishTypeSession);
+
+        const fishTypeMap = parsedSessionData.map(fishSpecies => {
+
+          var option = document.createElement("option");
+          option.text = fishSpecies.fishtype;
+          fishtypeSelect.add(option);
+      });
+        console.log("fish type data not fetched");
+    }
+
   
   </script>
 

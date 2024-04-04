@@ -9,9 +9,13 @@ const passport = require("passport");
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 const env = require("dotenv").config();
+const multer = require("multer");
+
+const upload = require("./multer-config");
+
+
 
 let ObjectId = require('mongodb').ObjectId;
-
 
 
 
@@ -491,6 +495,7 @@ app.post("/api/createaccount", async (req,res) => {
 
 //make a table of fishtypes to add to selection box
 
+
 app.post("/api/fishtype", async (req, res) => {
 
   console.log(req.body);
@@ -498,10 +503,16 @@ app.post("/api/fishtype", async (req, res) => {
 
 
 
+
+
   const fishTypeObj = new fishLib({user_id,fishtype});
   try {
     const fishTypeSave = await fishTypeObj.save();
-    res.json("post successful")
+    res.json("post successful");
+
+    
+
+    return fishTypeSave;
     
 
   } catch (err) {
@@ -521,8 +532,14 @@ const fishTypeData = {
 
 }
 
+
+let fishTypeCalls = 0;
+
 app.get("/api/fishtype", async (req, res) => {
   const fishData = await fishLib.find({user_id:req.user.id},fishTypeData);
+
+  fishTypeCalls++; 
+  console.log(`fishType calls: ${fishTypeCalls}`);
 
   res.json(fishData);
 });
@@ -616,7 +633,7 @@ try {
 
 let doc = await Fish.findOneAndDelete(filter)
 
-res.redirect("/table");
+res.redirect("/selectRecord");
 
 return doc;
 
@@ -782,12 +799,7 @@ app.post("/api/fish", async (req, res) => {
 
   try {
     const fish = await fishObj.save();
-    res.json({
-      fish_type: fish.name,
-      fish_location: fish.location,
-      date_caught: fish.date,
-      bait_used: fish.bait,
-    });
+    res.redirect("/table");
   } catch (err) {
     console.log(err);
   }
@@ -879,6 +891,19 @@ app.get("/api/fishcount", async (req, res) => {
 
 
 
+//upload image files with multer.js
+
+app.post("/single", upload.single("image"),(req, res) => {
+
+  console.log(req.file);
+  console.log(req.body);
+  res.send("single file upload successful");
+});
+
+
+
+
+
 // add logout and checks for user authentication
 
 
@@ -886,6 +911,8 @@ app.delete('/logout', (req, res) => {
   req.logOut((error) => {
       return error
   });
+
+
  
   res.redirect('/login');
 })
@@ -906,8 +933,6 @@ function checkNotAuthenticated(req,res,next){
   }
   return next();
 }
-
-
 
 
 

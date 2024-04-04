@@ -3,11 +3,11 @@
 <html>
     <body>
         <div>
-            <form id="newPost">
+            <form action="/api/fish" method="post" id="newPost">
 
 
               <label for="userID">userID:</label>
-              <input readonly="true" type="text" id="userID" name="userID"/><br><br>
+              <input readonly="true" type="text" id="userID" name="user_id"/><br><br>
                 
                   <select
                   id="bodyOfWater" 
@@ -34,13 +34,13 @@
 
 
                 
-                  <input type="text" id="cloudcover" />
-                  <input type="text" id="precip" />
-                  <input type="text" id="temp" />
-                  <input type="text" id="surfacePressure" />
-                  <input type="text" id="windspeed" />
-                  <input type="text" id="location" />
-                  <input type="text" id="date" />
+                  <input type="text" id="cloudcover" name="cloudcover" />
+                  <input type="text" id="precip" name="precip" />
+                  <input type="text" id="temp" name="temp" />
+                  <input type="text" id="surfacePressure" name="surfacePressure" />
+                  <input type="text" id="windspeed" name="windspeed" />
+                  <input type="text" id="location" name="location" />
+                  <input type="text" id="date" name="date" />
                 </label>
                 <button type="submit">Add</button>
               </form>
@@ -55,9 +55,16 @@
       <a href="table"><button id="selectRecord">table</button></a>
       <a href="chart"><button id="selectRecord">chart</button></a><br><br>
 
-      <form action="/logout?_method=DELETE" method = "POST">
+      <!-- <form action="/logout?_method=DELETE" method = "POST">
         <button type="submit">Log out</button>
         
+        </form> -->
+
+        <button onclick="logOut()">LOGOUT</button><br><br>
+
+        <form action="/single" method="post" enctype="multipart/form-data">
+          <input type="file" name="image" />
+          <input type="submit" class="btn btn-default">  
         </form>
 
         </div>
@@ -66,6 +73,27 @@
         
   
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+
+//delete request using fetch
+
+let baseURL = "http://localhost:5500"
+
+const logOut = async () => {
+  await fetch(`${baseURL}/logout`, {
+    method: "DELETE",
+  
+  })
+  .then(() => {
+    sessionStorage.clear();
+    window.location.href = "/";
+
+    })
+}
+
+
+</script>
 
 
 
@@ -76,6 +104,7 @@
 
 let userID = document.getElementById("userID");
 
+let userSessionId;
 
 const fetchUsername = () => {
          fetch(`http://localhost:5500/api/userdata`) //api for the get request
@@ -84,12 +113,31 @@ const fetchUsername = () => {
          console.log(data);
         
          userID.value = data.id;
+
+         userSessionId = sessionStorage.setItem("user_id", data.id);
     
         })
 
       }
 
-      fetchUsername();
+  //fetch username or grab from session storage if already fetched
+
+  let sessionId = sessionStorage.getItem("user_id");
+
+  fetchUsername();
+
+  if (!sessionId) {
+    fetchUsername();
+    console.log("username data fetched")
+  }
+  else {
+    
+    userID.value = sessionId;
+
+    console.log("username data not fetched");
+
+
+  }
 
 
 </script>
@@ -112,77 +160,98 @@ const fetchUsername = () => {
     
     let surfacePressure_box = document.getElementById("surfacePressure");
 
-let BASE_URL = "http://192.168.1.123:5500"
 
-const form = document.getElementById('newPost');
+//the code below that is commented out was used to post data using axios. I decided using the form action method to post data is sufficient and much more concise.
 
-form.addEventListener('submit', async event => {
-  event.preventDefault();
+// let BASE_URL = "http://192.168.1.123:5500"
 
-
-
-let fish_box = document.getElementById("fishtype").value
-
-let bait_box = document.getElementById("bait").value
-
-let bodyWater = document.getElementById("bodyOfWater").value
-
-let temp_box = document.getElementById("temp").value
-
-let cloud_box = document.getElementById("cloudcover").value
-
-let wind_box = document.getElementById("windspeed").value
-
-let precip_box = document.getElementById("precip").value
-
-let date_box = document.getElementById("date").value
-
-let location_box = document.getElementById("location").value
-
-let surfacePressure_box = document.getElementById("surfacePressure").value
-
-  const postVal = {
-    user_id: userID.value,
-    body_of_water: bodyWater,
-    temp: temp_box,
-    cloudcover: cloud_box,
-    windspeed: wind_box,
-    precip: precip_box,
-    fishtype: fish_box,
-    location: location_box,
-    date: date_box,
-    bait: bait_box,
-    surfacePressure: surfacePressure_box,
-  };
-console.log(postVal);
-  const submitCatch = await addCatch(postVal);
-  //updateTodoList(submitFishType);
-});
+// const form = document.getElementById('newPost');
 
 
-  const addCatch = async postVal => {
-  try {
-    const response = await axios.post(`${BASE_URL}/api/fish`, 
-     postVal,
-    { headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+
+// form.addEventListener('submit', async event => {
+//   event.preventDefault();
+
+
+
+// let fish_box = document.getElementById("fishtype").value
+
+// let bait_box = document.getElementById("bait").value
+
+// let bodyWater = document.getElementById("bodyOfWater").value
+
+// let temp_box = document.getElementById("temp").value
+
+// let cloud_box = document.getElementById("cloudcover").value
+
+// let wind_box = document.getElementById("windspeed").value
+
+// let precip_box = document.getElementById("precip").value
+
+// let date_box = document.getElementById("date").value
+
+// let location_box = document.getElementById("location").value
+
+// let surfacePressure_box = document.getElementById("surfacePressure").value
+ 
+
+
+//   const postVal = {
+//     user_id: userID.value,
+//     body_of_water: bodyWater,
+//     temp: temp_box,
+//     cloudcover: cloud_box,
+//     windspeed: wind_box,
+//     precip: precip_box,
+//     fishtype: fish_box,
+//     location: location_box,
+//     date: date_box,
+//     bait: bait_box,
+//     surfacePressure: surfacePressure_box,
+//   };
+  
+// console.log(postVal);
+
+
+//   const submitCatch =  await addCatch(postVal);
+// })
+
+
+
+
+
+//   const addCatch = async postVal => {
+//   try {
+//     const response =  await axios.post(`${BASE_URL}/api/fish`, 
+//      postVal,
+//     { headers: {
+//       'Content-Type': 'application/x-www-form-urlencoded'
     
-    }
-  });
-    const newCatch = response.data;
+//     }
+//   });
 
-    alert(`Added a new catch!`, newCatch)
 
-    console.log(`Added a new catch!`, newCatch);
 
-    window.location.href = "table";
 
-    return newCatch;
-  } catch (errors) {
-    console.error(errors);
-  }
-};
-    </script>
+//     const newCatch = response.data;
+
+//     alert(`Added a new catch!`, newCatch)
+
+//     console.log(`Added a new catch!`, newCatch);
+
+//     window.location.href = "table";
+
+
+//     return newCatch;
+
+//   } catch (errors) {
+//     console.error(errors);
+//   }
+
+// }
+
+
+ </script>
 
 
 <script>
@@ -192,6 +261,9 @@ console.log(postVal);
     let fishLib;
     
     let fishSelect = document.getElementById("fishtype");
+
+    let retrieveFishTypeSession;
+
     
     const fetchFishLib = () => {
          fetch(`http://localhost:5500/api/fishtype`) //api for the get request
@@ -200,17 +272,21 @@ console.log(postVal);
          console.log(data);
         
          fishLib = data;
+
+         //save data to local storage
+
+         let dataToLocal = sessionStorage.setItem("fishtype",JSON.stringify(fishLib));
     
         })
         .then(() => {
     
-        // fill fishtype selection box with fishtype data from fishLib collection
-    
+
+
         const fishTypeMap = fishLib.map(fishSpecies => {
     
           var option = document.createElement("option");
-        option.text = fishSpecies.fishtype;
-        fishSelect.add(option);
+          option.text = fishSpecies.fishtype;
+          fishSelect.add(option);
     
         })
     
@@ -218,8 +294,33 @@ console.log(postVal);
     
         })
       }
-    
-      fetchFishLib();
+
+
+   
+      retrieveFishTypeSession = sessionStorage.getItem("fishtype")
+
+      if (!retrieveFishTypeSession) {
+
+        fetchFishLib()
+       
+        console.log(" fish type data fetched");
+
+      }
+      else {
+
+        //parse session fish type data
+       
+        let parsedSessionData = JSON.parse(retrieveFishTypeSession);
+
+        const fishTypeMap = parsedSessionData.map(fishSpecies => {
+
+          var option = document.createElement("option");
+          option.text = fishSpecies.fishtype;
+          fishSelect.add(option);
+      });
+        console.log("fish type data not fetched");
+    }
+
     
     </script>
     
@@ -236,6 +337,8 @@ console.log(postVal);
     let baitLib;
     
     let baitSelect = document.getElementById("bait");
+
+    let retrieveBaitSession;
     
     const fetchBaitLib = () => {
          fetch(`http://localhost:5500/api/bait`) //api for the get request
@@ -244,6 +347,10 @@ console.log(postVal);
          console.log(data);
         
          baitLib = data;
+
+         //save data to local storage
+
+         let dataToSession = sessionStorage.setItem("bait",JSON.stringify(baitLib));
     
         })
         .then(() => {
@@ -253,8 +360,8 @@ console.log(postVal);
         const baitTypeMap = baitLib.map(bait => {
     
           var option = document.createElement("option");
-        option.text = bait.bait;
-        baitSelect.add(option);
+          option.text = bait.bait;
+          baitSelect.add(option);
     
         })
     
@@ -263,7 +370,28 @@ console.log(postVal);
         })
       }
     
-      fetchBaitLib();
+      //fetchBaitLib();
+
+      retrieveBaitSession = sessionStorage.getItem("bait")
+
+      if (!retrieveBaitSession) {
+
+        fetchBaitLib()
+      
+        console.log("bait data fetched");
+
+      }
+      else {
+        console.log("bait data not fetched");
+        let parsedSessionData = JSON.parse(retrieveBaitSession);
+
+        const baitTypeMap = parsedSessionData.map(bait => {
+    
+            var option = document.createElement("option");
+            option.text = bait.bait;
+            baitSelect.add(option);
+      });
+      }
     
     
     
@@ -291,6 +419,8 @@ console.log(postVal);
            console.log(data);
           
            waterLib = data;
+
+           saveToSession = sessionStorage.setItem("waterLib", JSON.stringify(waterLib));
       
           })
           .then(() => {
@@ -309,8 +439,38 @@ console.log(postVal);
       
           })
         }
+
+        let retrieveSessionWaterLib = sessionStorage.getItem("waterLib");
+
+        if (!retrieveSessionWaterLib) {
+
+          fetchWaterLib();
+
+          console.log("water data fetched");
+
+        }
+
+        else {
+
+          //parse session water lib data
+
+          waterSessionParse = JSON.parse(retrieveSessionWaterLib);
+
+          const bodyOfWaterMap = waterSessionParse.map(water => {
       
-        fetchWaterLib();
+            var option = document.createElement("option");
+            option.text = water.body_of_water;
+            waterSelect.add(option);
+
+            console.log("water data not fetched");
+
+    })
+
+
+
+        }
+      
+       
       
       
       
@@ -328,7 +488,7 @@ console.log(postVal);
    
      //fetch data from open meteo with latitidue and longitude we acquired from the geolocation api
 
-     function weatherData() {
+     async function weatherData() {
     
     //create options object for third argument in geolocation function
     
@@ -383,6 +543,8 @@ console.log(postVal);
           console.log(data);
 
           console.log(`weather data: ${data}`)
+
+          return data;
     
         
         });
@@ -395,6 +557,7 @@ console.log(postVal);
     
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
   }
+   
         </script>
 </html>
 

@@ -1,6 +1,10 @@
 <h1>login
 </h1>
 
+<% if (messages.error) { %>
+    <%= messages.error %>
+    <% } %>
+
 
 <form action="/login" method ="POST">
 

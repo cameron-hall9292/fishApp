@@ -158,7 +158,30 @@ const fetchUsername = () => {
       })
     }
   
-    fetchBaitLib();
+    //fetchBaitLib();
+
+    //use session storage to fill bait selection box
+
+    retrieveBaitSession = sessionStorage.getItem("bait")
+
+if (!retrieveBaitSession) {
+
+  fetchBaitLib()
+
+  console.log("bait data fetched");
+
+}
+else {
+  console.log("bait data not fetched");
+  let parsedSessionData = JSON.parse(retrieveBaitSession);
+
+  const baitTypeMap = parsedSessionData.map(bait => {
+
+      var option = document.createElement("option");
+      option.text = bait.bait;
+      baitSelect.add(option);
+});
+}
   
   
   

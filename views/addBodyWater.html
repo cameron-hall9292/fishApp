@@ -161,7 +161,37 @@ const fetchUsername = () => {
       })
     }
   
-    fetchWaterLib();
+    //fetchWaterLib();
+
+    // use session storage instead of hitting our API
+
+    let retrieveSessionWaterLib = sessionStorage.getItem("waterLib");
+
+    if (!retrieveSessionWaterLib) {
+
+        fetchWaterLib();
+
+        console.log("water data fetched");
+
+    }
+
+    else {
+
+      //parse session water lib data
+
+        waterSessionParse = JSON.parse(retrieveSessionWaterLib);
+
+        const bodyOfWaterMap = waterSessionParse.map(water => {
+
+        var option = document.createElement("option");
+        option.text = water.body_of_water;
+        bodyWaterSelect.add(option);
+
+        console.log("water data not fetched");
+
+    })
+    }
+
   
   
   
