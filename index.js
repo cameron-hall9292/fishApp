@@ -13,6 +13,10 @@ const multer = require("multer");
 
 const upload = require("./multer-config");
 
+const crypto = require("crypto");
+
+const sharp = require("sharp");
+
 
 
 let ObjectId = require('mongodb').ObjectId;
@@ -65,6 +69,14 @@ password: String,
 
 })
 
+//create image schema
+
+const imageShema = new Schema({
+  image_name: String,
+  user_id: String,
+
+})
+
 
 //create main schema
 
@@ -107,6 +119,10 @@ const bodyOfWaterSchema = new Schema({
   body_of_water: Object
 })
 
+
+//create image library 
+
+const image = mongoose.model("Images", imageShema);
 
 
 //create users library
@@ -244,6 +260,11 @@ app.get("/selectRecord", checkAuthenticated, (req, res) => {
 });
 
 
+//render images
+
+app.get("/images", checkAuthenticated, (req, res) => {
+  res.render("images.ejs");
+})
 
 
 //render login page
@@ -891,13 +912,110 @@ app.get("/api/fishcount", async (req, res) => {
 
 
 
+//configure AWS S3 to store images in bucket
+
+
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3") ;
+
+
+
+
+const bucketName = process.env.BUCKET_NAME;
+const bucketRegion = process.env.BUCKET_REGION;
+const accessKey = process.env.ACCESS_KEY;
+const secretAccessKey = process.env.SECRET_ACCESS_KEY;
+
+//configure s3 client
+
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: accessKey,
+    secretAccessKey: secretAccessKey,
+
+  },
+  region: bucketRegion,
+
+})
+
+
+
+console.log(`bucketname: ${bucketName}`);
+
+
 //upload image files with multer.js
 
-app.post("/single", upload.single("image"),(req, res) => {
+app.post("/single", upload.single("image"), async (req, res) => {
 
   console.log(req.file);
   console.log(req.body);
+
+  //create random image name with crypto
+
+  const imageName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
+
+
+  //resize image
+  const buffer = await sharp(req.file.buffer).resize({height: 400, width: 400, fit: "contain"}).toBuffer();
+
+
+  const randImageName = imageName();
+
+  //send photo to S3 storage
+
+  const params = {
+    Bucket: bucketName,
+    Key: randImageName,
+    Body: buffer,
+    ContentType: req.file.mimetype,
+  }
+
+  const command = new PutObjectCommand(params);
+
+  await s3.send(command);
+
+  //save caption and image name to DB
+
+  let caption = req.body.caption;
+
+  //create image url
+
+  imageUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${randImageName}`
+
+
+  const imageObj = new image({
+    image_name: imageUrl, 
+    user_id: req.user.id});
+  try {
+    const imageSave = await imageObj.save();
+    res.json("post successful");
+
+    
+
+    return imageSave;
+    
+
+  } catch (err) {
+    console.log(err);
+  }
+
+
+
+
+
   res.send("single file upload successful");
+});
+
+//get image urls
+
+app.get("/api/imageUrls", async (req,res) => {
+
+
+
+ const images = await image.find({user_id:req.user.id});
+
+  res.json(images);
+
+
 });
 
 

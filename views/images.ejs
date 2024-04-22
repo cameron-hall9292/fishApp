@@ -1,0 +1,54 @@
+<h1>images</h1>
+
+
+<div id ="images">
+
+</div>
+
+<script>
+
+
+
+const fetchImageLib = () => {
+         fetch(`http://localhost:5500/api/imageUrls`) //api for the get request
+        .then((response) => response.json())
+        .then((data) => {
+         console.log(data);
+        
+         imageLib = data;
+
+         //save data to local storage
+
+         //let dataToLocal = sessionStorage.setItem("fishtype",JSON.stringify(fishLib));
+    
+        })
+        .then(() => {
+            
+            
+
+
+            let container = document.getElementById("images");
+
+        const imageMap = imageLib.map(image => {
+        
+          let img = new Image();
+          img.src = image.image_name;
+          //console.log(img.src);
+          container.appendChild(img);
+          const newButton = document.createElement('button');
+          newButton.textContent = 'Click me!';
+          container.append(newButton);
+
+
+
+          //fishSelect.add(option);
+    
+        })
+    
+      
+    
+        })
+      }
+      fetchImageLib();
+
+</script>
