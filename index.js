@@ -92,6 +92,7 @@ const fishSchema = new Schema({
   date: String,
   bait: String,
   surfacePressure: Object,
+  imgUrl: String,
 },
 {timestamps: true}
 );
@@ -758,6 +759,7 @@ app.post("/api/updateFish", async (req,res) => {
 
     const update = 
     {fishtype: req.body.fishtypeSelect,
+
     bait: req.body.baitSelect,
     body_of_water: req.body.body_of_water }
 
@@ -816,6 +818,7 @@ app.post("/api/fish", async (req, res) => {
     date,                                                  //date ? new Date(date).toLocaleString('en-US') : new Date().toLocaleString('en-US'),
     bait,
     surfacePressure,
+    imgUrl: "abc",
   });
 
   try {
@@ -842,6 +845,7 @@ const desiredData = {
   date: 1,
   bait: 1,
   surfacePressure: 1,
+  imgUrl: 1,
 };
 
 //get all fish data
@@ -987,7 +991,30 @@ app.post("/single", upload.single("image"), async (req, res) => {
     user_id: req.user.id});
   try {
     const imageSave = await imageObj.save();
+
+
+//insert img url into catch record in DB
+
+
+const filter = { _id: req.body.anID} 
+
+const update = { imgUrl: imageUrl }
+
+console.log(filter);
+
+console.log(update);
+
+const addImgToRec = await Fish.findOneAndUpdate(filter,update, {
+  new: true
+});
+
+
+
+
+
     res.json("post successful");
+
+    return addImgToRec;
 
     
 
@@ -998,9 +1025,7 @@ app.post("/single", upload.single("image"), async (req, res) => {
     console.log(err);
   }
 
-
-
-
+  //res.redirect("/");
 
   res.send("single file upload successful");
 });
