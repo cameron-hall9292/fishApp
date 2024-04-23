@@ -91,6 +91,17 @@
           <input type="submit" class="btn btn-default">  
         </form>
 
+        
+        <form action="/api/deleteImg" method="post" id="deleteImg">
+
+          <label for="imgId">_id:</label>
+        <input  type="text" id="imgId" name="imgId"/>
+
+        <button type="submit">DELETE PIC</button>
+
+
+        </form>
+
     </div>
 
 
@@ -121,7 +132,7 @@ let records = document.getElementById("numRecords");
 
 console.log(`num records: ${numRecords}`);
 
-
+const imgId = document.getElementById("imgId");
 const anID = document.getElementById("anID");
 const idInst = document.getElementById("_id");
 const catchID = document.getElementById("catchID");
@@ -179,6 +190,8 @@ idInst.value = await fetchedData[record]._id;
 catchID.value = await fetchedData[record]._id;
 
 anID.value = await fetchedData[record]._id;
+
+imgId.value = await fetchedData[record]._id;
 
 bodyOfWater.innerHTML = await fetchedData[record].body_of_water;
  bait.innerHTML = await fetchedData[record].bait

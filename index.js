@@ -919,7 +919,7 @@ app.get("/api/fishcount", async (req, res) => {
 //configure AWS S3 to store images in bucket
 
 
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3") ;
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3") ;
 
 
 
@@ -1042,6 +1042,51 @@ app.get("/api/imageUrls", async (req,res) => {
 
 
 });
+
+//delete image from AWS S3 and DB
+
+app.post("/api/deleteImg", async (req,res) => {
+
+  const findImage = await Fish.find({_id: req.body.imgId});
+
+  //this is where image name begins in image url
+
+  const imgNameStart = 49;
+
+  const imgName = findImage[0].imgUrl.substring(imgNameStart);
+
+  console.log(`imgName: ${imgName}`);
+
+  const params = {
+    Bucket: bucketName,
+    Key: imgName,
+  }
+
+  try {
+  const command = new DeleteObjectCommand(params);
+  await s3.send(command);
+
+
+  await image.findOneAndDelete(
+    {
+      image_name: findImage[0].imgUrl,
+      user_id: req.user.id,
+    }
+  );
+
+  //blank out image url in fish record
+
+  const blankUrl = await Fish.findOneAndUpdate({_id: req.body.imgId}, {imgUrl: "undefined"}, {
+    new: true
+  });
+
+} catch(err) {
+  console.log(err);
+}
+
+  res.json("image deleted");
+
+})
 
 
 
