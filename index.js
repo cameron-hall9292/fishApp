@@ -260,6 +260,12 @@ app.get("/selectRecord", checkAuthenticated, (req, res) => {
   res.render("selectRecord.ejs");
 });
 
+//experiment with route params
+
+app.get("/selectRecord/:_id", checkAuthenticated, (req, res) => {
+  res.render("selectRecord.ejs");
+});
+
 
 //render images
 
@@ -1045,7 +1051,9 @@ app.get("/api/imageUrls", async (req,res) => {
 
 //delete image from AWS S3 and DB
 
-app.post("/api/deleteImg", async (req,res) => {
+app.post("/api/deleteImg/:_id", async (req,res) => {
+
+  console.log(`req params id: ${req.params._id}`);
 
   const findImage = await Fish.find({_id: req.body.imgId});
 
@@ -1085,6 +1093,19 @@ app.post("/api/deleteImg", async (req,res) => {
 }
 
   res.json("image deleted");
+
+});
+
+//experimenting with route params
+
+app.get("/api/data/:_id", async (req, res) => {
+  
+  console.log(req.params);
+
+  const data = await Fish.find({_id: req.params._id});
+
+  res.json(data);
+
 
 })
 

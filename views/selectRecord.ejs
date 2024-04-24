@@ -118,6 +118,10 @@
 
 
 
+
+
+
+
 //define global vars
 
 let record = 0;
@@ -167,6 +171,9 @@ console.log(`num records: ${numRecords}`);
 })
 .then(() => {
 displayData();
+
+
+
 })
 }
 
@@ -183,7 +190,27 @@ let dataLength = fetchedData.length - 1;
 console.log(`data length - 1: ${dataLength}`);
 
 
+
+
 id.innerHTML = await fetchedData[record]._id;
+
+let urlId = await fetchedData[record]._id;
+
+//add id element to url so we can use req.params on backend to capture id value
+
+const url = `http://localhost:5500/selectRecord/${urlId}`;
+
+history.replaceState({}, "", url);
+
+//change form action endpoint url and use route param that way
+
+let deleteForm = document.getElementById("deleteImg");
+
+deleteForm.action = `/api/deleteImg/${urlId}`;
+
+
+
+
 
 idInst.value = await fetchedData[record]._id;
 
