@@ -4,8 +4,7 @@
 
 <body>
     <div>   
-        <span>_id: </span>
-        <span id="id" name="id"></span><br />
+     
         <span>body_of_water: </span>
         <span id="water" name="water"></span><br />
         <span>bait: </span>
@@ -33,11 +32,6 @@
 
 
         <form action="/api/updateFish" method="post" id="update">
-
-
-            <label for="_id">_id:</label>
-            <input  type="text" id="_id" name="_id"/><br><br>
-
          
                 <select
                 id="bodyOfWater" 
@@ -68,9 +62,6 @@
 
             <form action="/api/deleteCatch" method="post" id="delete">
 
-              <label for="catchID">_id:</label>
-            <input  type="text" id="catchID" name="catchID"/>
-
             <button type="submit">DELETE RECORD</button>
 
 
@@ -84,18 +75,13 @@
         <a href="addBodyWater"><button id="addBodyWater">add a new body of water</button></a>
         <a href="/"><button id="newMain">HOME</button></a><br><br>
 
-        <form action="/single" method="post" enctype="multipart/form-data">
-          <label for="anID">anID:</label>
-          <input  type="text" id="anID" name="anID"/><br><br>
+        <form action="/single" method="post" enctype="multipart/form-data" id="selectImg">
           <input type="file" name="image" />
           <input type="submit" class="btn btn-default">  
         </form>
 
         
         <form action="/api/deleteImg" method="post" id="deleteImg">
-
-          <label for="imgId">_id:</label>
-        <input  type="text" id="imgId" name="imgId"/>
 
         <button type="submit">DELETE PIC</button>
 
@@ -136,11 +122,7 @@ let records = document.getElementById("numRecords");
 
 console.log(`num records: ${numRecords}`);
 
-const imgId = document.getElementById("imgId");
-const anID = document.getElementById("anID");
-const idInst = document.getElementById("_id");
-const catchID = document.getElementById("catchID");
-const id = document.getElementById("id");
+
 const bodyOfWater = document.getElementById("water");
 const bait = document.getElementById("bait");
 const cloudcover = document.getElementById("cloudcover");
@@ -192,7 +174,7 @@ console.log(`data length - 1: ${dataLength}`);
 
 
 
-id.innerHTML = await fetchedData[record]._id;
+
 
 let urlId = await fetchedData[record]._id;
 
@@ -208,17 +190,22 @@ let deleteForm = document.getElementById("deleteImg");
 
 deleteForm.action = `/api/deleteImg/${urlId}`;
 
+let selectImgForm = document.getElementById("selectImg");
+
+selectImgForm.action = `/single/${urlId}`;
+
+let updateRecord = document.getElementById("update");
+
+updateRecord.action = `/api/updateFish/${urlId}`;
+
+
+let deleteRecord = document.getElementById("delete");
+
+deleteRecord.action = `/api/deleteCatch/${urlId}`;
 
 
 
 
-idInst.value = await fetchedData[record]._id;
-
-catchID.value = await fetchedData[record]._id;
-
-anID.value = await fetchedData[record]._id;
-
-imgId.value = await fetchedData[record]._id;
 
 bodyOfWater.innerHTML = await fetchedData[record].body_of_water;
  bait.innerHTML = await fetchedData[record].bait

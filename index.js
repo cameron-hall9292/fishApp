@@ -651,25 +651,6 @@ app.get("/api/bodyofwater", async (req, res) => {
 });
 
 
-//delete user fish record
-
-app.post("/api/deleteCatch", async (req, res) => {
-
-const filter = {_id: req.body.catchID};
-
-try {
-
-let doc = await Fish.findOneAndDelete(filter)
-
-res.redirect("/selectRecord");
-
-return doc;
-
-} catch(err){
-  if (err) console.log(err);
-}
-
-});
 
 //delete a bait from fish library
 
@@ -754,14 +735,12 @@ app.post("/api/deleteWater", async (req,res) => {
 //update user fish data
 
 
-app.post("/api/updateFish", async (req,res) => {
+app.post("/api/updateFish/:_id", async (req,res) => {
 
 
-
-  console.log(req.body.fishtypeSelect);
   try {
 
-    const filter = {_id: req.body._id}
+    const filter = {_id: req.params._id}
 
     const update = 
     {fishtype: req.body.fishtypeSelect,
@@ -954,10 +933,12 @@ console.log(`bucketname: ${bucketName}`);
 
 //upload image files with multer.js
 
-app.post("/single", upload.single("image"), async (req, res) => {
+app.post("/single/:_id", upload.single("image"), async (req, res) => {
 
   console.log(req.file);
   console.log(req.body);
+
+  const id = req.params._id;
 
   //create random image name with crypto
 
@@ -983,9 +964,7 @@ app.post("/single", upload.single("image"), async (req, res) => {
 
   await s3.send(command);
 
-  //save caption and image name to DB
 
-  let caption = req.body.caption;
 
   //create image url
 
@@ -1002,7 +981,7 @@ app.post("/single", upload.single("image"), async (req, res) => {
 //insert img url into catch record in DB
 
 
-const filter = { _id: req.body.anID} 
+const filter = { _id: id} 
 
 const update = { imgUrl: imageUrl }
 
@@ -1018,7 +997,9 @@ const addImgToRec = await Fish.findOneAndUpdate(filter,update, {
 
 
 
-    res.json("post successful");
+   // res.json("post successful");
+
+   res.redirect(`/selectRecord/${id}`);
 
     return addImgToRec;
 
@@ -1055,7 +1036,9 @@ app.post("/api/deleteImg/:_id", async (req,res) => {
 
   console.log(`req params id: ${req.params._id}`);
 
-  const findImage = await Fish.find({_id: req.body.imgId});
+  const id = req.params._id;
+
+  const findImage = await Fish.find({_id: id});
 
   //this is where image name begins in image url
 
@@ -1084,7 +1067,7 @@ app.post("/api/deleteImg/:_id", async (req,res) => {
 
   //blank out image url in fish record
 
-  const blankUrl = await Fish.findOneAndUpdate({_id: req.body.imgId}, {imgUrl: "undefined"}, {
+  const blankUrl = await Fish.findOneAndUpdate({_id: id}, {imgUrl: "undefined"}, {
     new: true
   });
 
@@ -1092,9 +1075,79 @@ app.post("/api/deleteImg/:_id", async (req,res) => {
   console.log(err);
 }
 
-  res.json("image deleted");
+  //res.json("image deleted");
+
+  res.redirect(`/selectRecord/${id}`);
 
 });
+
+
+
+//delete user fish record and delete image from s3
+
+app.post("/api/deleteCatch/:_id", async (req, res) => {
+
+  const filter = {_id: req.params._id};
+
+  const id = req.params._id;
+
+
+  const findImage = await Fish.find(filter);
+
+  //this is where image name begins in image url
+
+  const imgNameStart = 49;
+
+  const imgName = findImage[0].imgUrl.substring(imgNameStart);
+
+  console.log(`imgName: ${imgName}`);
+
+  const params = {
+    Bucket: bucketName,
+    Key: imgName,
+  }
+
+  //delete record and image from AWS S3
+
+  try {
+  const command = new DeleteObjectCommand(params);
+  await s3.send(command);
+
+
+  await image.findOneAndDelete(
+    {
+      image_name: findImage[0].imgUrl,
+      user_id: req.user.id,
+    }
+  );
+
+  await Fish.findOneAndDelete(filter);
+
+  res.redirect(`/selectRecord/${id}`);
+
+
+  //delete record that does not have an image
+
+} catch(err) {
+  
+  console.log(err);
+
+  await Fish.findOneAndDelete(filter);
+
+  res.redirect(`/selectRecord/${id}`);
+
+}
+
+
+
+  });
+
+
+
+
+
+
+
 
 //experimenting with route params
 
