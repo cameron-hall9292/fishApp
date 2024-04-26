@@ -968,11 +968,11 @@ app.post("/single/:_id", upload.single("image"), async (req, res) => {
 
   //create image url
 
-  imageUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${randImageName}`
+  //imageUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${randImageName}`
 
 
   const imageObj = new image({
-    image_name: imageUrl, 
+    image_name: randImageName, 
     user_id: req.user.id});
   try {
     const imageSave = await imageObj.save();
@@ -983,7 +983,7 @@ app.post("/single/:_id", upload.single("image"), async (req, res) => {
 
 const filter = { _id: id} 
 
-const update = { imgUrl: imageUrl }
+const update = { imgUrl: randImageName }
 
 console.log(filter);
 
@@ -1040,11 +1040,13 @@ app.post("/api/deleteImg/:_id", async (req,res) => {
 
   const findImage = await Fish.find({_id: id});
 
-  //this is where image name begins in image url
 
-  const imgNameStart = 49;
 
-  const imgName = findImage[0].imgUrl.substring(imgNameStart);
+  //const imgNameStart = 49;
+
+ // const imgName = findImage[0].imgUrl.substring(imgNameStart);
+
+ const imgName = findImage[0].imgUrl;
 
   console.log(`imgName: ${imgName}`);
 
@@ -1081,6 +1083,28 @@ app.post("/api/deleteImg/:_id", async (req,res) => {
 
 });
 
+//create api to retrieve image name and build out a url for it
+
+app.get("/api/getImage/:_id", async (req, res) => {
+
+  const id = req.params._id;
+
+  //imageUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${randImageName}`
+
+  const findRecord = await Fish.find({_id: id});
+
+
+  const imageName = findRecord[0].imgUrl;
+
+  console.log(imageName);
+
+  const imageUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${imageName}`;
+
+  res.json(imageUrl);
+
+
+});
+
 
 
 //delete user fish record and delete image from s3
@@ -1096,9 +1120,11 @@ app.post("/api/deleteCatch/:_id", async (req, res) => {
 
   //this is where image name begins in image url
 
-  const imgNameStart = 49;
+  //const imgNameStart = 49;
 
-  const imgName = findImage[0].imgUrl.substring(imgNameStart);
+  //const imgName = findImage[0].imgUrl.substring(imgNameStart);
+
+  const imgName = findImage[0].imgUrl;
 
   console.log(`imgName: ${imgName}`);
 
