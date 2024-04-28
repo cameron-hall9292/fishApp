@@ -904,10 +904,11 @@ app.get("/api/fishcount", async (req, res) => {
 //configure AWS S3 to store images in bucket
 
 
-const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3") ;
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3") ;
 
+//const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
-
+const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 
 const bucketName = process.env.BUCKET_NAME;
 const bucketRegion = process.env.BUCKET_REGION;
@@ -1096,11 +1097,42 @@ app.get("/api/getImage/:_id", async (req, res) => {
 
   const imageName = findRecord[0].imgUrl;
 
+  if (imageName == "undefined") return res.json("no image");
+
   console.log(imageName);
+
+
+
+  const objParams = {
+    Bucket: bucketName,
+    Key: imageName,
+   
+  }
+
 
   const imageUrl = `https://${bucketName}.s3.${bucketRegion}.amazonaws.com/${imageName}`;
 
-  res.json(imageUrl);
+ 
+ 
+    
+    //const command = new GetObjectCommand(objParams);
+    //const url =  await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+
+    const cloudFrontUrl = `https://d1kq76fvslqy1k.cloudfront.net/${imageName}`;
+
+     const cloudFrontSignedUrl = getSignedUrl({
+      url: cloudFrontUrl,
+      dateLessThan: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      privateKey: process.env.CLOUDFRONT_PRIVATE_KEY,
+      keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID,
+    })
+
+  //console.log(`presignedUrl: ${url}`);
+
+  console.log(`cloudFrontUrl: ${cloudFrontSignedUrl}`);
+
+  res.json(cloudFrontSignedUrl);
 
 
 });
